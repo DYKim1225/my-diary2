@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="나의 일기">
+  <meta name="theme-color" content="#f2f2f7">
+  <title>나의 일기</title>
+
+  <style>
+    :root {
+      --primary: #007aff;
+      --primary-soft: #e5f1ff;
+      --bg-system: #f2f2f7;
+      --bg-card: #ffffff;
+      --text-main: #1c1c1e;
+      --text-muted: #8e8e93;
+      --border-color: #e5e5ea;
+      --danger: #ff3b30;
+      --safe-bottom: env(safe-area-inset-bottom, 16px);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-system);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #app-container {
+      width: 100%;
+      max-width: 600px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-system);
+      padding-bottom: calc(var(--safe-bottom) + 80px);
+      position: relative;
+    }
+
+    /* 상단 네비게이션 헤더 */
+    header.app-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(242, 242, 247, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 0.5px solid var(--border-color);
+    }
+
+    .header-title-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-month-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .btn-today {
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: none;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      cursor: pointer;
+      color: var(--text-main);
+      box-shadow: var(--shadow-sm);
+      transition: background 0.15s ease;
+    }
+
+    .icon-btn:active {
+      background: #e5e5ea;
+    }
+
+    /* 캘린더 보드 */
+    .calendar-card {
+      background: var(--bg-card);
+      margin: 12px 16px;
+      padding: 16px 12px 12px 12px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .weekday-bar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .weekday-bar .sun {
+      color: var(--danger);
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      row-gap: 6px;
+    }
+
+    .day-cell {
+      height: 52px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      padding-top: 3px;
+      position: relative;
+    }
+
+    .day-cell.other-month {
+      opacity: 0.25;
+    }
+
+    .day-cell.selected {
+      background: #eef5ff;
+      border: 1.5px solid var(--primary);
+    }
+
+    .day-number {
+      font-size: 0.85rem;
+      font-weight: 500;
+      line-height: 18px;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+
+    .day-cell.is-today .day-number {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .day-cell.sun .day-number {
+      color: var(--danger);
+    }
+
+    .day-cell.is-today.sun .day-number {
+      color: #ffffff;
+    }
+
+    .day-badge-container {
+      margin-top: 2px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cal-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      object-fit: cover;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .cal-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+
+    /* 타임라인 헤더 및 카드 */
+    .timeline-container {
+      padding: 8px 16px;
+    }
+
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .timeline-date-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .btn-write-entry {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 122, 255, 0.28);
+      transition: opacity 0.2s;
+    }
+
+    .btn-write-entry:disabled {
+      background: #c7c7cc;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    .entry-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .entry-meta-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .meta-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .entry-time {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .meta-chip {
+      background: #f2f2f7;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      color: #3a3a3c;
+    }
+
+    .entry-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .entry-action-btn {
+      background: none;
+      border: none;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px 6px;
+    }
+
+    .entry-action-btn.del {
+      color: var(--danger);
+    }
+
+    .entry-body {
+      font-size: 0.95rem;
+      line-height: 1.55;
+      color: #2c2c2e;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* 미디어 그리드 */
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .media-grid.count-1 {
+      grid-template-columns: 1fr;
+    }
+
+    .media-grid.count-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .media-item-wrap {
+      position: relative;
+      width: 100%;
+      padding-top: 100%;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: #e5e5ea;
+      cursor: pointer;
+    }
+
+    .media-item-wrap img,
+    .media-item-wrap video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .video-play-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 34px;
+      height: 34px;
+      background: rgba(0, 0, 0, 0.65);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 0.85rem;
+      pointer-events: none;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* 모달 베이스 및 바텀시트 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 100;
+      display: none;
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .bottom-sheet {
+      width: 100%;
+      max-width: 600px;
+      background: var(--bg-card);
+      border-top-left-radius: var(--radius-lg);
+      border-top-right-radius: var(--radius-lg);
+      padding: 20px 20px calc(var(--safe-bottom) + 20px) 20px;
+      max-height: 90vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: var(--shadow-md);
+      animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 0.5px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .btn-close-modal {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .chip-selector-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .chip-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip-option {
+      background: #f2f2f7;
+      border: 1px solid transparent;
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 0.82rem;
+      color: var(--text-main);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .chip-option.active {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .form-time-input {
+      border: 1px solid var(--border-color);
+      background: #f2f2f7;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .textarea-content {
+      width: 100%;
+      min-height: 120px;
+      border: 1px solid var(--border-color);
+      background: #fafafc;
+      border-radius: var(--radius-md);
+      padding: 12px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      resize: none;
+      outline: none;
+    }
+
+    .textarea-content:focus {
+      border-color: var(--primary);
+      background: #ffffff;
+    }
+
+    /* 첨부 미디어 프리뷰 바 */
+    .media-attach-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .media-attach-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .media-previews {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 4px 0;
+    }
+
+    .preview-box {
+      position: relative;
+      width: 68px;
+      height: 68px;
+      flex-shrink: 0;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: #e5e5ea;
+    }
+
+    .preview-box img,
+    .preview-box video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .btn-remove-media {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      width: 18px;
+      height: 18px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .btn-save-submit {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.35);
+    }
+
+    /* 설정 및 검색 모달 팝업 */
+    .center-modal {
+      width: 90%;
+      max-width: 480px;
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--shadow-md);
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .input-field:focus {
+      border-color: var(--primary);
+    }
+
+    .setting-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-bottom: 0.5px solid var(--border-color);
+      padding-bottom: 14px;
+    }
+
+    .setting-section:last-child {
+      border-bottom: none;
+    }
+
+    /* 미디어 라이트박스 */
+    #lightbox-modal {
+      background: rgba(0, 0, 0, 0.94);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lightbox-content-box {
+      max-width: 95vw;
+      max-height: 85vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lightbox-content-box img,
+    .lightbox-content-box video {
+      max-width: 100%;
+      max-height: 80vh;
+      border-radius: var(--radius-sm);
+      object-fit: contain;
+    }
+
+    .btn-lightbox-close {
+      position: absolute;
+      top: calc(env(safe-area-inset-top, 20px) + 16px);
+      right: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    /* 토스트 알림 */
+    #toast-msg {
+      position: fixed;
+      bottom: calc(var(--safe-bottom) + 30px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(28, 28, 30, 0.88);
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    #toast-msg.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app-container">
+  <!-- 상단 네비게이션 헤더 -->
+  <header class="app-header">
+    <div class="header-title-box">
+      <span id="calendar-header-title" class="header-month-text">2026년 9월</span>
+      <button id="btn-goto-today" class="btn-today">오늘</button>
+    </div>
+    <div class="header-actions">
+      <button id="btn-prev-month" class="icon-btn" title="이전달">‹</button>
+      <button id="btn-next-month" class="icon-btn" title="다음달">›</button>
+      <button id="btn-open-search" class="icon-btn" title="검색">🔍</button>
+      <button id="btn-open-settings" class="icon-btn" title="설정">⚙️</button>
+    </div>
+  </header>
+
+  <!-- 캘린더 보드 -->
+  <section class="calendar-card">
+    <div class="weekday-bar">
+      <span class="sun">일</span>
+      <span>월</span>
+      <span>화</span>
+      <span>수</span>
+      <span>목</span>
+      <span>금</span>
+      <span>토</span>
+    </div>
+    <div id="calendar-grid" class="calendar-grid"></div>
+  </section>
+
+  <!-- 하단 타임라인 영역 -->
+  <section class="timeline-container">
+    <div class="timeline-header">
+      <span id="timeline-selected-date" class="timeline-date-title">2026년 9월 25일 (금)</span>
+      <button id="btn-write" class="btn-write-entry">➕ 기록 쓰기</button>
+    </div>
+    <div id="timeline-list"></div>
+  </section>
+</div>
+
+<!-- 작성/수정 바텀시트 모달 -->
+<div id="entry-modal" class="modal-overlay">
+  <div class="bottom-sheet">
+    <div class="modal-header">
+      <span id="entry-modal-title" class="modal-title">새 일기 쓰기</span>
+      <button id="btn-close-entry-modal" class="btn-close-modal">✕</button>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <span style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">작성 시간</span>
+      <input type="time" id="input-entry-time" class="form-time-input">
+    </div>
+
+    <!-- 기분 칩 선택 -->
+    <div class="chip-selector-group">
+      <span class="chip-label">오늘의 기분 (선택)</span>
+      <div id="mood-chip-list" class="chip-list">
+        <span class="chip-option" data-val="좋음 😊">좋음 😊</span>
+        <span class="chip-option" data-val="평온 🌿">평온 🌿</span>
+        <span class="chip-option" data-val="여유 ☕">여유 ☕</span>
+        <span class="chip-option" data-val="활기 🔥">활기 🔥</span>
+        <span class="chip-option" data-val="피곤 🥱">피곤 🥱</span>
+        <span class="chip-option" data-val="우울 🌧️">우울 🌧️</span>
+      </div>
+    </div>
+
+    <!-- 날씨 칩 선택 -->
+    <div class="chip-selector-group">
+      <span class="chip-label">오늘의 날씨 (선택)</span>
+      <div id="weather-chip-list" class="chip-list">
+        <span class="chip-option" data-val="맑음 ☀️">맑음 ☀️</span>
+        <span class="chip-option" data-val="구름 ⛅">구름 ⛅</span>
+        <span class="chip-option" data-val="비 🌧️">비 🌧️</span>
+        <span class="chip-option" data-val="눈 ❄️">눈 ❄️</span>
+      </div>
+    </div>
+
+    <!-- 본문 입력창 -->
+    <textarea id="input-entry-content" class="textarea-content" placeholder="오늘 어떤 일이 있었나요? 생각을 자유롭게 적어보세요..."></textarea>
+
+    <!-- 사진/영상 첨부 컨트롤 -->
+    <div class="media-attach-bar">
+      <div class="media-attach-header">
+        <span class="chip-label">사진 / 동영상 첨부 (<span id="media-count-label">0</span>/5)</span>
+        <button id="btn-trigger-file" type="button" class="btn-today" style="background:#e5e5ea; color:var(--text-main);">파일 선택</button>
+        <input type="file" id="file-input" accept="image/*,video/*" multiple style="display:none;">
+      </div>
+      <div id="media-preview-container" class="media-previews"></div>
+    </div>
+
+    <button id="btn-save-entry" class="btn-save-submit">저장하기</button>
+  </div>
+</div>
+
+<!-- 검색 모달 -->
+<div id="search-modal" class="modal-overlay">
+  <div class="center-modal">
+    <div class="modal-header">
+      <span class="modal-title">일기 검색</span>
+      <button id="btn-close-search" class="btn-close-modal">✕</button>
+    </div>
+    <input type="text" id="search-keyword-input" class="input-field" placeholder="검색할 단어를 입력하세요...">
+    <div id="search-results-list" style="max-height:280px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;"></div>
+  </div>
+</div>
+
+<!-- 설정 모달 -->
+<div id="settings-modal" class="modal-overlay">
+  <div class="center-modal">
+    <div class="modal-header">
+      <span class="modal-title">설정 & 클라우드 연동</span>
+      <button id="btn-close-settings" class="btn-close-modal">✕</button>
+    </div>
+
+    <div class="setting-section">
+      <span class="chip-label">Google Apps Script 웹 앱 URL</span>
+      <input type="text" id="input-gas-url" class="input-field" placeholder="https://script.google.com/macros/s/.../exec">
+      <button id="btn-save-gas-url" class="btn-today" style="align-self:flex-end;">URL 저장 및 동기화</button>
+    </div>
+
+    <div class="setting-section">
+      <span class="chip-label">데이터 수동 백업 및 복원</span>
+      <div style="display:flex; gap:8px;">
+        <button id="btn-export-json" class="btn-today" style="flex:1;">JSON 백업 내보내기</button>
+        <button id="btn-import-json-trigger" class="btn-today" style="flex:1; background:#e5e5ea; color:var(--text-main);">JSON 복원 불러오기</button>
+        <input type="file" id="file-import-json" accept=".json" style="display:none;">
+      </div>
+    </div>
+
+    <div style="font-size:0.75rem; color:var(--text-muted); text-align:center;">
+      현재 보관된 로컬 일기: <span id="local-entry-count">0</span>건
+    </div>
+  </div>
+</div>
+
+<!-- 미디어 전체화면 라이트박스 -->
+<div id="lightbox-modal" class="modal-overlay">
+  <button id="btn-close-lightbox" class="btn-lightbox-close">✕</button>
+  <div id="lightbox-target-wrap" class="lightbox-content-box"></div>
+</div>
+
+<!-- 토스트 알림창 -->
+<div id="toast-msg"></div>
+
+<script>
+/**
+ * 나의 일기 (Personal Daily Journal)
+ * 0초 부팅 로컬 캐시 + IndexedDB 영구 저장 + Google Apps Script 비동기 백업
+ */
+
+// 배포된 구글 앱스 스크립트 웹 앱 기본 URL
+const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbwxajiKQBKqKT8MO2qQl48c4vvKYBNWhkI_FToQXGsBRa3hXePlCP7mSAgPiJruXQ/exec';
+
+// 1. 상태 관리
+const STATE = {
+  entries: [],
+  selectedDate: getFormattedDateString(new Date()),
+  viewYear: new Date().getFullYear(),
+  viewMonth: new Date().getMonth(), // 0-based
+  editingEntryId: null,
+  pendingMedia: [],
+  gasUrl: localStorage.getItem('MY_DIARY_GAS_URL') || DEFAULT_GAS_URL
+};
+
+// 기본 URL이 로컬스토리지에 미등록된 경우 초기화 등록
+if (!localStorage.getItem('MY_DIARY_GAS_URL')) {
+  localStorage.setItem('MY_DIARY_GAS_URL', DEFAULT_GAS_URL);
+}
+
+// 2. 초기 로컬 캐시 즉시 복원 (0초 렌더링)
+const cachedData = localStorage.getItem('MY_DIARY_ENTRIES_CACHE');
+if (cachedData) {
+  try {
+    STATE.entries = JSON.parse(cachedData);
+  } catch (e) {
+    STATE.entries = [];
+  }
+}
+
+// 3. IndexedDB 설정
+const DB_NAME = 'MyDiaryPwaDB';
+const DB_VERSION = 1;
+const STORE_NAME = 'entries';
+
+function openDatabase() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function loadEntriesFromIndexedDB() {
+  try {
+    const db = await openDatabase();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const store = tx.objectStore(STORE_NAME);
+      const req = store.getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => reject(req.error);
+    });
+  } catch (err) {
+    console.warn('IndexedDB Load Error:', err);
+    return [];
+  }
+}
+
+async function saveEntryToIndexedDB(entry) {
+  try {
+    const db = await openDatabase();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).put(entry);
+  } catch (err) {
+    console.warn('IndexedDB Save Error:', err);
+  }
+}
+
+async function deleteEntryFromIndexedDB(id) {
+  try {
+    const db = await openDatabase();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).delete(id);
+  } catch (err) {
+    console.warn('IndexedDB Delete Error:', err);
+  }
+}
+
+// 4. 날짜 포맷 헬퍼
+function getFormattedDateString(d) {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getFormattedKoreanDate(dateStr) {
+  const parts = dateStr.split('-');
+  const y = parseInt(parts[0], 10);
+  const m = parseInt(parts[1], 10);
+  const d = parseInt(parts[2], 10);
+  const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][new Date(y, m - 1, d).getDay()];
+  return `${y}년 ${m}월 ${d}일 (${dayOfWeek})`;
+}
+
+function getFormattedTimeString(d = new Date()) {
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast-msg');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+// 5. 캘린더 렌더링
+function renderCalendar() {
+  const year = STATE.viewYear;
+  const month = STATE.viewMonth;
+
+  document.getElementById('calendar-header-title').textContent = `${year}년 ${month + 1}월`;
+
+  const grid = document.getElementById('calendar-grid');
+  grid.innerHTML = '';
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const lastDate = new Date(year, month + 1, 0).getDate();
+  const prevMonthLastDate = new Date(year, month, 0).getDate();
+
+  // 이전 달 여백 날짜
+  for (let i = firstDay - 1; i >= 0; i--) {
+    const d = prevMonthLastDate - i;
+    const prevDateStr = getFormattedDateString(new Date(year, month - 1, d));
+    const cell = createDateCell(prevDateStr, d, true, (firstDay - 1 - i) % 7 === 0);
+    grid.appendChild(cell);
+  }
+
+  // 이번 달 일자
+  const todayStr = getFormattedDateString(new Date());
+  for (let d = 1; d <= lastDate; d++) {
+    const curDateStr = getFormattedDateString(new Date(year, month, d));
+    const isSun = (firstDay + d - 1) % 7 === 0;
+    const cell = createDateCell(curDateStr, d, false, isSun, curDateStr === todayStr);
+    grid.appendChild(cell);
+  }
+
+  // 다음 달 여백 날짜 채우기 (총 35 또는 42셀 보정)
+  const totalRendered = firstDay + lastDate;
+  const remainingCells = (totalRendered % 7 === 0) ? 0 : 7 - (totalRendered % 7);
+  for (let d = 1; d <= remainingCells; d++) {
+    const nextDateStr = getFormattedDateString(new Date(year, month + 1, d));
+    const isSun = (totalRendered + d - 1) % 7 === 0;
+    const cell = createDateCell(nextDateStr, d, true, isSun);
+    grid.appendChild(cell);
+  }
+}
+
+function createDateCell(dateStr, dayNum, isOtherMonth, isSunday, isToday = false) {
+  const cell = document.createElement('div');
+  cell.className = 'day-cell';
+  if (isOtherMonth) cell.classList.add('other-month');
+  if (isSunday) cell.classList.add('sun');
+  if (isToday) cell.classList.add('is-today');
+  if (dateStr === STATE.selectedDate) cell.classList.add('selected');
+
+  const numSpan = document.createElement('span');
+  numSpan.className = 'day-number';
+  numSpan.textContent = dayNum;
+  cell.appendChild(numSpan);
+
+  const badgeBox = document.createElement('div');
+  badgeBox.className = 'day-badge-container';
+
+  // 해당 일자 일기 및 미디어 여부 판단
+  const dayEntries = STATE.entries.filter(e => e.date === dateStr);
+  if (dayEntries.length > 0) {
+    let firstMediaUrl = null;
+
+    for (const ent of dayEntries) {
+      if (ent.media && ent.media.length > 0) {
+        const m = ent.media[0];
+        firstMediaUrl = m.url || m.dataUrl;
+        break;
+      }
+    }
+
+    if (firstMediaUrl) {
+      const img = document.createElement('img');
+      img.className = 'cal-thumb';
+      img.setAttribute('referrerpolicy', 'no-referrer');
+      img.src = firstMediaUrl;
+      badgeBox.appendChild(img);
+    } else {
+      const dot = document.createElement('span');
+      dot.className = 'cal-dot';
+      badgeBox.appendChild(dot);
+    }
+  }
+
+  cell.appendChild(badgeBox);
+
+  cell.addEventListener('click', () => {
+    STATE.selectedDate = dateStr;
+    renderCalendar();
+    renderTimeline();
+  });
+
+  return cell;
+}
+
+// 6. 타임라인 및 일기 카드 렌더링
+function renderTimeline() {
+  const selectedDateStr = STATE.selectedDate;
+  document.getElementById('timeline-selected-date').textContent = getFormattedKoreanDate(selectedDateStr);
+
+  const dayEntries = STATE.entries.filter(e => e.date === selectedDateStr);
+  const btnWrite = document.getElementById('btn-write');
+
+  // 일일 최대 3개 작성 한도 규칙 검사
+  if (dayEntries.length >= 3) {
+    btnWrite.disabled = true;
+    btnWrite.textContent = '작성 한도 도달 (3/3)';
+  } else {
+    btnWrite.disabled = false;
+    btnWrite.textContent = `➕ 기록 쓰기 (${dayEntries.length}/3)`;
+  }
+
+  const container = document.getElementById('timeline-list');
+  container.innerHTML = '';
+
+  if (dayEntries.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <p>작성된 일기가 없습니다.</p>
+        <p style="margin-top:4px; font-size:0.8rem;">상단의 [기록 쓰기]를 눌러 오늘의 순간을 남겨보세요.</p>
+      </div>
+    `;
+    return;
+  }
+
+  // 시간순 정렬 (오름차순)
+  dayEntries.sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+
+  dayEntries.forEach(entry => {
+    const card = document.createElement('div');
+    card.className = 'entry-card';
+
+    // 상단 메타 바
+    const metaBar = document.createElement('div');
+    metaBar.className = 'entry-meta-bar';
+
+    const leftBox = document.createElement('div');
+    leftBox.className = 'meta-left';
+
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'entry-time';
+    timeSpan.textContent = entry.time || '--:--';
+    leftBox.appendChild(timeSpan);
+
+    if (entry.mood) {
+      const moodChip = document.createElement('span');
+      moodChip.className = 'meta-chip';
+      moodChip.textContent = entry.mood;
+      leftBox.appendChild(moodChip);
+    }
+
+    if (entry.weather) {
+      const weatherChip = document.createElement('span');
+      weatherChip.className = 'meta-chip';
+      weatherChip.textContent = entry.weather;
+      leftBox.appendChild(weatherChip);
+    }
+    metaBar.appendChild(leftBox);
+
+    // 액션 버튼 (수정/삭제)
+    const actions = document.createElement('div');
+    actions.className = 'entry-actions';
+
+    const editBtn = document.createElement('button');
+    editBtn.className = 'entry-action-btn';
+    editBtn.textContent = '수정';
+    editBtn.onclick = () => openEditModal(entry);
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'entry-action-btn del';
+    delBtn.textContent = '삭제';
+    delBtn.onclick = () => handleDeleteEntry(entry.id);
+
+    actions.appendChild(editBtn);
+    actions.appendChild(delBtn);
+    metaBar.appendChild(actions);
+    card.appendChild(metaBar);
+
+    // 본문 내용 (줄바꿈 보존)
+    if (entry.content && entry.content.trim().length > 0) {
+      const body = document.createElement('div');
+      body.className = 'entry-body';
+      body.textContent = entry.content;
+      card.appendChild(body);
+    }
+
+    // 미디어 그리드 (최대 5장)
+    if (entry.media && entry.media.length > 0) {
+      const mediaGrid = document.createElement('div');
+      const count = entry.media.length;
+      mediaGrid.className = `media-grid count-${count > 2 ? 3 : count}`;
+
+      entry.media.forEach(m => {
+        const itemWrap = document.createElement('div');
+        itemWrap.className = 'media-item-wrap';
+        const targetSrc = m.url || m.dataUrl;
+
+        if (m.type && m.type.startsWith('video/')) {
+          const video = document.createElement('video');
+          video.src = targetSrc;
+          video.muted = true;
+          video.playsInline = true;
+          video.preload = 'metadata';
+          itemWrap.appendChild(video);
+
+          const badge = document.createElement('div');
+          badge.className = 'video-play-overlay';
+          badge.innerHTML = '▶';
+          itemWrap.appendChild(badge);
+
+          itemWrap.onclick = () => openLightbox(targetSrc, 'video');
+        } else {
+          const img = document.createElement('img');
+          img.setAttribute('referrerpolicy', 'no-referrer');
+          img.loading = 'lazy';
+          img.src = targetSrc;
+          itemWrap.appendChild(img);
+
+          itemWrap.onclick = () => openLightbox(targetSrc, 'image');
+        }
+
+        mediaGrid.appendChild(itemWrap);
+      });
+
+      card.appendChild(mediaGrid);
+    }
+
+    container.appendChild(card);
+  });
+}
+
+// 7. 이미지 압축 및 비디오 처리 파이프라인
+function compressImage(file, maxWidth = 750, quality = 0.74) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width;
+        let h = img.height;
+        if (w > maxWidth) {
+          h = Math.round((h * maxWidth) / w);
+          w = maxWidth;
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        const base64 = dataUrl.split(',')[1];
+        resolve({
+          name: file.name,
+          type: 'image/jpeg',
+          dataUrl: dataUrl,
+          base64: base64
+        });
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function processVideo(file) {
+  return new Promise((resolve, reject) => {
+    if (file.size > 25 * 1024 * 1024) {
+      return reject(new Error('동영상 용량은 최대 25MB 이하만 가능합니다.'));
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target.result;
+      const base64 = dataUrl.split(',')[1];
+      resolve({
+        name: file.name,
+        type: file.type || 'video/mp4',
+        dataUrl: dataUrl,
+        base64: base64
+      });
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// 8. 작성 및 수정 모달 제어
+function openCreateModal() {
+  const dayEntries = STATE.entries.filter(e => e.date === STATE.selectedDate);
+  if (dayEntries.length >= 3) {
+    showToast('일일 작성 한도(3개)에 이미 도달했습니다.');
+    return;
+  }
+
+  STATE.editingEntryId = null;
+  STATE.pendingMedia = [];
+
+  document.getElementById('entry-modal-title').textContent = '새 일기 쓰기';
+  document.getElementById('input-entry-time').value = getFormattedTimeString(new Date());
+  document.getElementById('input-entry-content').value = '';
+
+  resetChips();
+  renderPendingMediaPreviews();
+  document.getElementById('entry-modal').classList.add('active');
+}
+
+function openEditModal(entry) {
+  STATE.editingEntryId = entry.id;
+  STATE.pendingMedia = entry.media ? [...entry.media] : [];
+
+  document.getElementById('entry-modal-title').textContent = '일기 수정하기';
+  document.getElementById('input-entry-time').value = entry.time || getFormattedTimeString(new Date());
+  document.getElementById('input-entry-content').value = entry.content || '';
+
+  resetChips();
+  if (entry.mood) {
+    const el = document.querySelector(`#mood-chip-list .chip-option[data-val="${entry.mood}"]`);
+    if (el) el.classList.add('active');
+  }
+  if (entry.weather) {
+    const el = document.querySelector(`#weather-chip-list .chip-option[data-val="${entry.weather}"]`);
+    if (el) el.classList.add('active');
+  }
+
+  renderPendingMediaPreviews();
+  document.getElementById('entry-modal').classList.add('active');
+}
+
+function resetChips() {
+  document.querySelectorAll('.chip-option').forEach(el => el.classList.remove('active'));
+}
+
+function renderPendingMediaPreviews() {
+  const count = STATE.pendingMedia.length;
+  document.getElementById('media-count-label').textContent = count;
+  const container = document.getElementById('media-preview-container');
+  container.innerHTML = '';
+
+  STATE.pendingMedia.forEach((m, idx) => {
+    const box = document.createElement('div');
+    box.className = 'preview-box';
+    const src = m.dataUrl || m.url;
+
+    if (m.type && m.type.startsWith('video/')) {
+      const v = document.createElement('video');
+      v.src = src;
+      box.appendChild(v);
+    } else {
+      const img = document.createElement('img');
+      img.setAttribute('referrerpolicy', 'no-referrer');
+      img.src = src;
+      box.appendChild(img);
+    }
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'btn-remove-media';
+    removeBtn.textContent = '✕';
+    removeBtn.onclick = (e) => {
+      e.stopPropagation();
+      STATE.pendingMedia.splice(idx, 1);
+      renderPendingMediaPreviews();
+    };
+
+    box.appendChild(removeBtn);
+    container.appendChild(box);
+  });
+}
+
+// 9. 일기 저장 실행
+async function handleSaveEntry() {
+  const time = document.getElementById('input-entry-time').value || getFormattedTimeString(new Date());
+  const content = document.getElementById('input-entry-content').value.trim();
+
+  const selectedMoodEl = document.querySelector('#mood-chip-list .chip-option.active');
+  const mood = selectedMoodEl ? selectedMoodEl.getAttribute('data-val') : '';
+
+  const selectedWeatherEl = document.querySelector('#weather-chip-list .chip-option.active');
+  const weather = selectedWeatherEl ? selectedWeatherEl.getAttribute('data-val') : '';
+
+  // 규칙: 본문 또는 미디어 중 하나 이상 필수 입력
+  if (!content && STATE.pendingMedia.length === 0) {
+    showToast('본문 텍스트 또는 미디어를 하나 이상 입력해야 합니다.');
+    return;
+  }
+
+  const isEditing = !!STATE.editingEntryId;
+  const entryId = isEditing ? STATE.editingEntryId : 'entry_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+
+  const entryData = {
+    id: entryId,
+    date: STATE.selectedDate,
+    time: time,
+    mood: mood,
+    weather: weather,
+    content: content,
+    media: STATE.pendingMedia,
+    updatedAt: new Date().toISOString()
+  };
+
+  // 1) 즉시 로컬 캐시 및 UI 반영 (0초 체감)
+  if (isEditing) {
+    const idx = STATE.entries.findIndex(e => e.id === entryId);
+    if (idx !== -1) STATE.entries[idx] = entryData;
+  } else {
+    STATE.entries.push(entryData);
+  }
+
+  persistLocalCache();
+  saveEntryToIndexedDB(entryData);
+
+  document.getElementById('entry-modal').classList.remove('active');
+  renderCalendar();
+  renderTimeline();
+  showToast(isEditing ? '수정 완료 (로컬 저장됨)' : '저장 완료 (로컬 저장됨)');
+
+  // 2) 백그라운드 구글 클라우드 동기화
+  syncEntryToGAS(entryData);
+}
+
+// 10. 일기 삭제
+async function handleDeleteEntry(id) {
+  if (!confirm('정말 이 일기를 삭제하시겠습니까?')) return;
+
+  STATE.entries = STATE.entries.filter(e => e.id !== id);
+  persistLocalCache();
+  deleteEntryFromIndexedDB(id);
+
+  renderCalendar();
+  renderTimeline();
+  showToast('일기가 삭제되었습니다.');
+
+  // 백엔드 삭제 전송
+  if (STATE.gasUrl) {
+    try {
+      fetch(STATE.gasUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'DELETE', id: id })
+      });
+    } catch (e) {
+      console.warn('GAS Delete Sync Error:', e);
+    }
+  }
+}
+
+// 11. 로컬 스토리지 동기화 헬퍼
+function persistLocalCache() {
+  try {
+    localStorage.setItem('MY_DIARY_ENTRIES_CACHE', JSON.stringify(STATE.entries));
+  } catch (err) {
+    console.warn('LocalStorage Quota Exceeded:', err);
+  }
+}
+
+// 12. Google Apps Script 백그라운드 통신
+async function syncEntryToGAS(entryData) {
+  if (!STATE.gasUrl) return;
+
+  try {
+    const response = await fetch(STATE.gasUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'SAVE',
+        entry: entryData
+      })
+    });
+
+    const result = await response.json();
+    if (result && result.status === 'success' && result.entry) {
+      // 클라우드에서 정식 발급된 Drive URL로 로컬 상태 갱신
+      const idx = STATE.entries.findIndex(e => e.id === result.entry.id);
+      if (idx !== -1) {
+        STATE.entries[idx] = result.entry;
+        persistLocalCache();
+        saveEntryToIndexedDB(result.entry);
+        renderCalendar();
+        renderTimeline();
+      }
+    }
+  } catch (err) {
+    console.warn('Cloud Sync Failed:', err);
+  }
+}
+
+async function fetchAllFromGAS() {
+  if (!STATE.gasUrl) return;
+
+  try {
+    const response = await fetch(STATE.gasUrl, { method: 'GET' });
+    const result = await response.json();
+    if (result && result.status === 'success' && Array.isArray(result.data)) {
+      STATE.entries = result.data;
+      persistLocalCache();
+      renderCalendar();
+      renderTimeline();
+
+      // IndexedDB 일괄 갱신
+      const db = await openDatabase();
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      result.data.forEach(item => store.put(item));
+    }
+  } catch (err) {
+    console.warn('Cloud Fetch Failed:', err);
+  }
+}
+
+// 13. 라이트박스 제어
+function openLightbox(url, type) {
+  const modal = document.getElementById('lightbox-modal');
+  const wrap = document.getElementById('lightbox-target-wrap');
+  wrap.innerHTML = '';
+
+  if (type === 'video') {
+    const v = document.createElement('video');
+    v.src = url;
+    v.controls = true;
+    v.autoplay = true;
+    v.playsInline = true;
+    wrap.appendChild(v);
+  } else {
+    const img = document.createElement('img');
+    img.setAttribute('referrerpolicy', 'no-referrer');
+    img.src = url;
+    wrap.appendChild(img);
+  }
+
+  modal.classList.add('active');
+}
+
+// 14. 이벤트 리스너 바인딩
+document.addEventListener('DOMContentLoaded', async () => {
+  // 1) 즉각 0초 렌더링
+  renderCalendar();
+  renderTimeline();
+
+  // 2) 백그라운드 IndexedDB 최신 데이터 로드
+  const idbEntries = await loadEntriesFromIndexedDB();
+  if (idbEntries.length > 0) {
+    STATE.entries = idbEntries;
+    persistLocalCache();
+    renderCalendar();
+    renderTimeline();
+  }
+
+  // 3) 백그라운드 구글 시트 원격 동기화
+  fetchAllFromGAS();
+
+  // 헤더 네비게이션
+  document.getElementById('btn-prev-month').addEventListener('click', () => {
+    if (STATE.viewMonth === 0) {
+      STATE.viewMonth = 11;
+      STATE.viewYear -= 1;
+    } else {
+      STATE.viewMonth -= 1;
+    }
+    renderCalendar();
+  });
+
+  document.getElementById('btn-next-month').addEventListener('click', () => {
+    if (STATE.viewMonth === 11) {
+      STATE.viewMonth = 0;
+      STATE.viewYear += 1;
+    } else {
+      STATE.viewMonth += 1;
+    }
+    renderCalendar();
+  });
+
+  document.getElementById('btn-goto-today').addEventListener('click', () => {
+    const today = new Date();
+    STATE.viewYear = today.getFullYear();
+    STATE.viewMonth = today.getMonth();
+    STATE.selectedDate = getFormattedDateString(today);
+    renderCalendar();
+    renderTimeline();
+  });
+
+  // 작성 모달 트리거
+  document.getElementById('btn-write').addEventListener('click', openCreateModal);
+  document.getElementById('btn-close-entry-modal').addEventListener('click', () => {
+    document.getElementById('entry-modal').classList.remove('active');
+  });
+
+  // 칩 토글 이벤트 (클릭 시 선택/해제 토글)
+  document.querySelectorAll('#mood-chip-list .chip-option').forEach(el => {
+    el.addEventListener('click', () => {
+      const isActive = el.classList.contains('active');
+      document.querySelectorAll('#mood-chip-list .chip-option').forEach(c => c.classList.remove('active'));
+      if (!isActive) el.classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('#weather-chip-list .chip-option').forEach(el => {
+    el.addEventListener('click', () => {
+      const isActive = el.classList.contains('active');
+      document.querySelectorAll('#weather-chip-list .chip-option').forEach(c => c.classList.remove('active'));
+      if (!isActive) el.classList.add('active');
+    });
+  });
+
+  // 미디어 첨부
+  const fileInput = document.getElementById('file-input');
+  document.getElementById('btn-trigger-file').addEventListener('click', () => {
+    if (STATE.pendingMedia.length >= 5) {
+      showToast('미디어는 최대 5개까지만 등록할 수 있습니다.');
+      return;
+    }
+    fileInput.click();
+  });
+
+  fileInput.addEventListener('change', async (e) => {
+    const files = Array.from(e.target.files);
+    for (const file of files) {
+      if (STATE.pendingMedia.length >= 5) {
+        showToast('최대 5개까지만 등록 가능합니다.');
+        break;
+      }
+      try {
+        if (file.type.startsWith('image/')) {
+          const compressed = await compressImage(file, 750, 0.74);
+          STATE.pendingMedia.push(compressed);
+        } else if (file.type.startsWith('video/')) {
+          const videoData = await processVideo(file);
+          STATE.pendingMedia.push(videoData);
+        }
+      } catch (err) {
+        showToast(err.message || '파일 처리 실패');
+      }
+    }
+    fileInput.value = '';
+    renderPendingMediaPreviews();
+  });
+
+  // 저장 제출
+  document.getElementById('btn-save-entry').addEventListener('click', handleSaveEntry);
+
+  // 라이트박스 닫기
+  document.getElementById('btn-close-lightbox').addEventListener('click', () => {
+    document.getElementById('lightbox-modal').classList.remove('active');
+    document.getElementById('lightbox-target-wrap').innerHTML = '';
+  });
+
+  // 검색 모달
+  const searchModal = document.getElementById('search-modal');
+  const searchInput = document.getElementById('search-keyword-input');
+  const searchResults = document.getElementById('search-results-list');
+
+  document.getElementById('btn-open-search').addEventListener('click', () => {
+    searchInput.value = '';
+    searchResults.innerHTML = '';
+    searchModal.classList.add('active');
+  });
+
+  document.getElementById('btn-close-search').addEventListener('click', () => {
+    searchModal.classList.remove('active');
+  });
+
+  searchInput.addEventListener('input', () => {
+    const query = searchInput.value.trim().toLowerCase();
+    searchResults.innerHTML = '';
+    if (!query) return;
+
+    const matched = STATE.entries.filter(e =>
+      (e.content && e.content.toLowerCase().includes(query)) ||
+      (e.mood && e.mood.toLowerCase().includes(query)) ||
+      (e.weather && e.weather.toLowerCase().includes(query))
+    );
+
+    if (matched.length === 0) {
+      searchResults.innerHTML = '<div style="font-size:0.85rem; color:var(--text-muted); padding:10px 0;">검색 결과가 없습니다.</div>';
+      return;
+    }
+
+    matched.forEach(item => {
+      const row = document.createElement('div');
+      row.style.cssText = 'background:#f2f2f7; padding:10px; border-radius:8px; cursor:pointer; font-size:0.85rem;';
+      row.innerHTML = `<strong>${item.date} (${item.time})</strong> - ${item.content ? item.content.slice(0, 35) + '...' : '(미디어 일기)'}`;
+      row.onclick = () => {
+        STATE.selectedDate = item.date;
+        const p = item.date.split('-');
+        STATE.viewYear = parseInt(p[0], 10);
+        STATE.viewMonth = parseInt(p[1], 10) - 1;
+        renderCalendar();
+        renderTimeline();
+        searchModal.classList.remove('active');
+      };
+      searchResults.appendChild(row);
+    });
+  });
+
+  // 설정 모달
+  const settingsModal = document.getElementById('settings-modal');
+  document.getElementById('btn-open-settings').addEventListener('click', () => {
+    document.getElementById('input-gas-url').value = STATE.gasUrl;
+    document.getElementById('local-entry-count').textContent = STATE.entries.length;
+    settingsModal.classList.add('active');
+  });
+
+  document.getElementById('btn-close-settings').addEventListener('click', () => {
+    settingsModal.classList.remove('active');
+  });
+
+  document.getElementById('btn-save-gas-url').addEventListener('click', () => {
+    const val = document.getElementById('input-gas-url').value.trim();
+    STATE.gasUrl = val || DEFAULT_GAS_URL;
+    localStorage.setItem('MY_DIARY_GAS_URL', STATE.gasUrl);
+    showToast('구글 클라우드 URL 설정 저장됨');
+    fetchAllFromGAS();
+  });
+
+  // 백업 파일(JSON) 내보내기
+  document.getElementById('btn-export-json').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(STATE.entries, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `my_diary_backup_${getFormattedDateString(new Date())}.json`;
+    a.click();
+  });
+
+  // 백업 파일(JSON) 불러오기
+  const fileImport = document.getElementById('file-import-json');
+  document.getElementById('btn-import-json-trigger').addEventListener('click', () => fileImport.click());
+
+  fileImport.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const imported = JSON.parse(event.target.result);
+        if (Array.isArray(imported)) {
+          STATE.entries = imported;
+          persistLocalCache();
+
+          const db = await openDatabase();
+          const tx = db.transaction(STORE_NAME, 'readwrite');
+          const store = tx.objectStore(STORE_NAME);
+          imported.forEach(i => store.put(i));
+
+          renderCalendar();
+          renderTimeline();
+          showToast(`성공적으로 ${imported.length}건의 일기를 복원했습니다.`);
+          settingsModal.classList.remove('active');
+        } else {
+          showToast('올바르지 않은 JSON 파일 형식입니다.');
+        }
+      } catch (err) {
+        showToast('복원 실패: 파일 구문 오류');
+      }
+    };
+    reader.readAsText(file);
+    fileImport.value = '';
+  });
+});
+</script>
+</body>
+</html>
