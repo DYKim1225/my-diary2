@@ -9,11 +9,9 @@
   <meta name="theme-color" content="#f2f2f7">
   <title>나의 일기</title>
 
-  <!-- iOS 홈화면 및 웹 클립 아이콘 태그 -->
   <link rel="apple-touch-icon" id="apple-touch-icon">
   <link rel="icon" id="app-favicon" type="image/png">
 
-  <!-- 코지 다이어리 홈화면 아이콘 자동 생성 스크립트 -->
   <script>
     (function generateCozyDiaryIcon() {
       try {
@@ -22,7 +20,6 @@
         canvas.height = 180;
         const ctx = canvas.getContext('2d');
 
-        // 라운드 사각형 범용 드로잉 헬퍼
         function drawRoundRect(context, x, y, w, h, radius) {
           let r = radius;
           if (typeof r === 'number') r = [r, r, r, r];
@@ -40,30 +37,24 @@
           context.closePath();
         }
 
-        // 1. 전체 부드러운 오프화이트/크림 배경
         ctx.fillStyle = '#F6F3EE';
         drawRoundRect(ctx, 0, 0, 180, 180, 38);
         ctx.fill();
 
-        // 2. 다이어리 부드러운 그림자
         ctx.shadowColor = 'rgba(92, 64, 46, 0.18)';
         ctx.shadowBlur = 16;
         ctx.shadowOffsetY = 8;
 
-        // 3. 다이어리 메인 커버 (포근한 테라코타 모카 브라운)
         ctx.fillStyle = '#A16E50';
         drawRoundRect(ctx, 36, 22, 114, 136, 12);
         ctx.fill();
 
-        // 그림자 초기화
         ctx.shadowColor = 'transparent';
 
-        // 4. 다이어리 책등(스파인) 음영 라인
         ctx.fillStyle = '#895538';
         drawRoundRect(ctx, 36, 22, 22, 136, [12, 0, 0, 12]);
         ctx.fill();
 
-        // 책등 구분 스티치 라인 (스티치 점선)
         ctx.strokeStyle = 'rgba(246, 243, 238, 0.45)';
         ctx.lineWidth = 1.5;
         ctx.setLineDash([3, 3]);
@@ -71,35 +62,30 @@
         ctx.moveTo(58, 25);
         ctx.lineTo(58, 155);
         ctx.stroke();
-        ctx.setLineDash([]); // 대시 리셋
+        ctx.setLineDash([]);
 
-        // 5. 종이 속지 단면 (은은한 아이보리)
         ctx.fillStyle = '#FFFDF9';
         ctx.fillRect(144, 28, 4, 124);
 
-        // 6. 북마크 리본 (차분한 더스티 로즈 핑크)
         ctx.fillStyle = '#D47B70';
         ctx.beginPath();
         ctx.moveTo(92, 22);
         ctx.lineTo(108, 22);
         ctx.lineTo(108, 90);
-        ctx.lineTo(100, 81); // 리본 끝 V자 홈
+        ctx.lineTo(100, 81);
         ctx.lineTo(92, 90);
         ctx.closePath();
         ctx.fill();
 
-        // 7. 가죽 잠금 스트랩
         ctx.fillStyle = '#895538';
         drawRoundRect(ctx, 130, 75, 24, 30, 5);
         ctx.fill();
 
-        // 금빛 메탈 스터드 단추
         ctx.fillStyle = '#E6C687';
         ctx.beginPath();
         ctx.arc(142, 90, 5, 0, Math.PI * 2);
         ctx.fill();
 
-        // Data URL 변환 후 헤더 태그에 적용
         const iconDataUrl = canvas.toDataURL('image/png');
         document.getElementById('apple-touch-icon').setAttribute('href', iconDataUrl);
         document.getElementById('app-favicon').setAttribute('href', iconDataUrl);
@@ -156,7 +142,6 @@
       position: relative;
     }
 
-    /* 상단 네비게이션 헤더 */
     header.app-header {
       position: sticky;
       top: 0;
@@ -220,7 +205,6 @@
       background: #e5e5ea;
     }
 
-    /* 캘린더 보드 */
     .calendar-card {
       background: var(--bg-card);
       margin: 12px 16px;
@@ -319,7 +303,6 @@
       background: var(--primary);
     }
 
-    /* 타임라인 헤더 및 카드 */
     .timeline-container {
       padding: 8px 16px;
     }
@@ -422,7 +405,6 @@
       word-break: break-word;
     }
 
-    /* 미디어 그리드 */
     .media-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -430,13 +412,8 @@
       margin-top: 4px;
     }
 
-    .media-grid.count-1 {
-      grid-template-columns: 1fr;
-    }
-
-    .media-grid.count-2 {
-      grid-template-columns: repeat(2, 1fr);
-    }
+    .media-grid.count-1 { grid-template-columns: 1fr; }
+    .media-grid.count-2 { grid-template-columns: repeat(2, 1fr); }
 
     .media-item-wrap {
       position: relative;
@@ -482,7 +459,6 @@
       font-size: 0.9rem;
     }
 
-    /* 모달 베이스 및 바텀시트 */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -498,9 +474,7 @@
       align-items: flex-end;
     }
 
-    .modal-overlay.active {
-      display: flex;
-    }
+    .modal-overlay.active { display: flex; }
 
     .bottom-sheet {
       width: 100%;
@@ -531,37 +505,12 @@
       padding-bottom: 12px;
     }
 
-    .modal-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-    }
+    .modal-title { font-size: 1.1rem; font-weight: 700; }
+    .btn-close-modal { background: none; border: none; font-size: 1.2rem; color: var(--text-muted); cursor: pointer; }
 
-    .btn-close-modal {
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      color: var(--text-muted);
-      cursor: pointer;
-    }
-
-    .chip-selector-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .chip-label {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--text-muted);
-    }
-
-    .chip-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
+    .chip-selector-group { display: flex; flex-direction: column; gap: 8px; }
+    .chip-label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+    .chip-list { display: flex; flex-wrap: wrap; gap: 8px; }
     .chip-option {
       background: #f2f2f7;
       border: 1px solid transparent;
@@ -608,26 +557,9 @@
       background: #ffffff;
     }
 
-    /* 첨부 미디어 프리뷰 바 */
-    .media-attach-bar {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .media-attach-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .media-previews {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding: 4px 0;
-    }
-
+    .media-attach-bar { display: flex; flex-direction: column; gap: 10px; }
+    .media-attach-header { display: flex; justify-content: space-between; align-items: center; }
+    .media-previews { display: flex; gap: 10px; overflow-x: auto; padding: 4px 0; }
     .preview-box {
       position: relative;
       width: 68px;
@@ -638,13 +570,7 @@
       background: #e5e5ea;
     }
 
-    .preview-box img,
-    .preview-box video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
+    .preview-box img, .preview-box video { width: 100%; height: 100%; object-fit: cover; }
     .btn-remove-media {
       position: absolute;
       top: 3px;
@@ -674,7 +600,6 @@
       box-shadow: 0 4px 12px rgba(0, 122, 255, 0.35);
     }
 
-    /* 설정 및 검색 모달 팝업 */
     .center-modal {
       width: 90%;
       max-width: 480px;
@@ -697,9 +622,7 @@
       outline: none;
     }
 
-    .input-field:focus {
-      border-color: var(--primary);
-    }
+    .input-field:focus { border-color: var(--primary); }
 
     .setting-section {
       display: flex;
@@ -709,11 +632,8 @@
       padding-bottom: 14px;
     }
 
-    .setting-section:last-child {
-      border-bottom: none;
-    }
+    .setting-section:last-child { border-bottom: none; }
 
-    /* 미디어 라이트박스 */
     #lightbox-modal {
       background: rgba(0, 0, 0, 0.94);
       align-items: center;
@@ -728,8 +648,7 @@
       justify-content: center;
     }
 
-    .lightbox-content-box img,
-    .lightbox-content-box video {
+    .lightbox-content-box img, .lightbox-content-box video {
       max-width: 100%;
       max-height: 80vh;
       border-radius: var(--radius-sm);
@@ -750,7 +669,6 @@
       cursor: pointer;
     }
 
-    /* 토스트 알림 */
     #toast-msg {
       position: fixed;
       bottom: calc(var(--safe-bottom) + 30px);
@@ -770,15 +688,12 @@
       transition: opacity 0.25s ease;
     }
 
-    #toast-msg.show {
-      opacity: 1;
-    }
+    #toast-msg.show { opacity: 1; }
   </style>
 </head>
 <body>
 
 <div id="app-container">
-  <!-- 상단 네비게이션 헤더 -->
   <header class="app-header">
     <div class="header-title-box">
       <span id="calendar-header-title" class="header-month-text">2026년 9월</span>
@@ -792,7 +707,6 @@
     </div>
   </header>
 
-  <!-- 캘린더 보드 -->
   <section class="calendar-card">
     <div class="weekday-bar">
       <span class="sun">일</span>
@@ -806,7 +720,6 @@
     <div id="calendar-grid" class="calendar-grid"></div>
   </section>
 
-  <!-- 하단 타임라인 영역 -->
   <section class="timeline-container">
     <div class="timeline-header">
       <span id="timeline-selected-date" class="timeline-date-title">2026년 9월 25일 (금)</span>
@@ -816,7 +729,7 @@
   </section>
 </div>
 
-<!-- 작성/수정 바텀시트 모달 -->
+<!-- 작성 모달 -->
 <div id="entry-modal" class="modal-overlay">
   <div class="bottom-sheet">
     <div class="modal-header">
@@ -829,7 +742,6 @@
       <input type="time" id="input-entry-time" class="form-time-input">
     </div>
 
-    <!-- 기분 칩 선택 -->
     <div class="chip-selector-group">
       <span class="chip-label">오늘의 기분 (선택)</span>
       <div id="mood-chip-list" class="chip-list">
@@ -842,7 +754,6 @@
       </div>
     </div>
 
-    <!-- 날씨 칩 선택 -->
     <div class="chip-selector-group">
       <span class="chip-label">오늘의 날씨 (선택)</span>
       <div id="weather-chip-list" class="chip-list">
@@ -853,10 +764,8 @@
       </div>
     </div>
 
-    <!-- 본문 입력창 -->
     <textarea id="input-entry-content" class="textarea-content" placeholder="오늘 어떤 일이 있었나요? 생각을 자유롭게 적어보세요..."></textarea>
 
-    <!-- 사진/영상 첨부 컨트롤 -->
     <div class="media-attach-bar">
       <div class="media-attach-header">
         <span class="chip-label">사진 / 동영상 첨부 (<span id="media-count-label">0</span>/5)</span>
@@ -911,51 +820,71 @@
   </div>
 </div>
 
-<!-- 미디어 전체화면 라이트박스 -->
+<!-- 라이트박스 -->
 <div id="lightbox-modal" class="modal-overlay">
   <button id="btn-close-lightbox" class="btn-lightbox-close">✕</button>
   <div id="lightbox-target-wrap" class="lightbox-content-box"></div>
 </div>
 
-<!-- 토스트 알림창 -->
 <div id="toast-msg"></div>
 
 <script>
-/**
- * 나의 일기 (Personal Daily Journal)
- * 0초 부팅 로컬 캐시 + IndexedDB 영구 저장 + Google Apps Script 비동기 백업
- */
-
-// 구글 앱스 스크립트 웹 앱 기본 URL
 const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbwxajiKQBKqKT8MO2qQl48c4vvKYBNWhkI_FToQXGsBRa3hXePlCP7mSAgPiJruXQ/exec';
 
-// 1. 상태 관리
+// 날짜 정규화 헬퍼 (구글 시트의 영문 Date 객체 문자열 복구)
+function normalizeDate(dVal) {
+  if (!dVal) return "";
+  const s = String(dVal).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const d = new Date(s);
+  if (!isNaN(d.getTime())) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+  return s.slice(0, 10);
+}
+
+function normalizeTime(tVal) {
+  if (!tVal) return "";
+  const s = String(tVal).trim();
+  if (/^\d{2}:\d{2}$/.test(s)) return s;
+  const d = new Date(s);
+  if (!isNaN(d.getTime())) {
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  }
+  return s.slice(0, 5);
+}
+
 const STATE = {
   entries: [],
-  selectedDate: getFormattedDateString(new Date()),
+  selectedDate: normalizeDate(new Date()),
   viewYear: new Date().getFullYear(),
-  viewMonth: new Date().getMonth(), // 0-based
+  viewMonth: new Date().getMonth(),
   editingEntryId: null,
   pendingMedia: [],
   gasUrl: localStorage.getItem('MY_DIARY_GAS_URL') || DEFAULT_GAS_URL
 };
 
-// 기본 URL 로컬 스토리지 보장
 if (!localStorage.getItem('MY_DIARY_GAS_URL')) {
   localStorage.setItem('MY_DIARY_GAS_URL', DEFAULT_GAS_URL);
 }
 
-// 2. 초기 로컬 캐시 즉시 복원 (0초 렌더링)
+// 0초 렌더링 시 기존 캐시 날짜 정규화 복구
 const cachedData = localStorage.getItem('MY_DIARY_ENTRIES_CACHE');
 if (cachedData) {
   try {
-    STATE.entries = JSON.parse(cachedData);
+    STATE.entries = JSON.parse(cachedData).map(e => ({
+      ...e,
+      date: normalizeDate(e.date),
+      time: normalizeTime(e.time)
+    }));
   } catch (e) {
     STATE.entries = [];
   }
 }
 
-// 3. IndexedDB 설정
 const DB_NAME = 'MyDiaryPwaDB';
 const DB_VERSION = 1;
 const STORE_NAME = 'entries';
@@ -981,11 +910,14 @@ async function loadEntriesFromIndexedDB() {
       const tx = db.transaction(STORE_NAME, 'readonly');
       const store = tx.objectStore(STORE_NAME);
       const req = store.getAll();
-      req.onsuccess = () => resolve(req.result || []);
-      req.onerror = () => reject(req.error);
+      req.onsuccess = () => resolve((req.result || []).map(e => ({
+        ...e,
+        date: normalizeDate(e.date),
+        time: normalizeTime(e.time)
+      })));
+      req.onerror = () => reject(request.error);
     });
   } catch (err) {
-    console.warn('IndexedDB Load Error:', err);
     return [];
   }
 }
@@ -995,9 +927,7 @@ async function saveEntryToIndexedDB(entry) {
     const db = await openDatabase();
     const tx = db.transaction(STORE_NAME, 'readwrite');
     tx.objectStore(STORE_NAME).put(entry);
-  } catch (err) {
-    console.warn('IndexedDB Save Error:', err);
-  }
+  } catch (err) {}
 }
 
 async function deleteEntryFromIndexedDB(id) {
@@ -1005,17 +935,11 @@ async function deleteEntryFromIndexedDB(id) {
     const db = await openDatabase();
     const tx = db.transaction(STORE_NAME, 'readwrite');
     tx.objectStore(STORE_NAME).delete(id);
-  } catch (err) {
-    console.warn('IndexedDB Delete Error:', err);
-  }
+  } catch (err) {}
 }
 
-// 4. 날짜 포맷 헬퍼
 function getFormattedDateString(d) {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 function getFormattedKoreanDate(dateStr) {
@@ -1028,9 +952,7 @@ function getFormattedKoreanDate(dateStr) {
 }
 
 function getFormattedTimeString(d = new Date()) {
-  const hours = String(d.getHours()).padStart(2, '0');
-  const minutes = String(d.getMinutes()).padStart(2, '0');
-  return `${hours}:${minutes}`;
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
 function showToast(msg) {
@@ -1040,11 +962,9 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 2600);
 }
 
-// 5. 캘린더 렌더링
 function renderCalendar() {
   const year = STATE.viewYear;
   const month = STATE.viewMonth;
-
   document.getElementById('calendar-header-title').textContent = `${year}년 ${month + 1}월`;
 
   const grid = document.getElementById('calendar-grid');
@@ -1054,31 +974,24 @@ function renderCalendar() {
   const lastDate = new Date(year, month + 1, 0).getDate();
   const prevMonthLastDate = new Date(year, month, 0).getDate();
 
-  // 이전 달 여백 날짜
   for (let i = firstDay - 1; i >= 0; i--) {
     const d = prevMonthLastDate - i;
     const prevDateStr = getFormattedDateString(new Date(year, month - 1, d));
-    const cell = createDateCell(prevDateStr, d, true, (firstDay - 1 - i) % 7 === 0);
-    grid.appendChild(cell);
+    grid.appendChild(createDateCell(prevDateStr, d, true, (firstDay - 1 - i) % 7 === 0));
   }
 
-  // 이번 달 일자
   const todayStr = getFormattedDateString(new Date());
   for (let d = 1; d <= lastDate; d++) {
     const curDateStr = getFormattedDateString(new Date(year, month, d));
     const isSun = (firstDay + d - 1) % 7 === 0;
-    const cell = createDateCell(curDateStr, d, false, isSun, curDateStr === todayStr);
-    grid.appendChild(cell);
+    grid.appendChild(createDateCell(curDateStr, d, false, isSun, curDateStr === todayStr));
   }
 
-  // 다음 달 여백 날짜 채우기
   const totalRendered = firstDay + lastDate;
   const remainingCells = (totalRendered % 7 === 0) ? 0 : 7 - (totalRendered % 7);
   for (let d = 1; d <= remainingCells; d++) {
     const nextDateStr = getFormattedDateString(new Date(year, month + 1, d));
-    const isSun = (totalRendered + d - 1) % 7 === 0;
-    const cell = createDateCell(nextDateStr, d, true, isSun);
-    grid.appendChild(cell);
+    grid.appendChild(createDateCell(nextDateStr, d, true, (totalRendered + d - 1) % 7 === 0));
   }
 }
 
@@ -1098,14 +1011,12 @@ function createDateCell(dateStr, dayNum, isOtherMonth, isSunday, isToday = false
   const badgeBox = document.createElement('div');
   badgeBox.className = 'day-badge-container';
 
-  const dayEntries = STATE.entries.filter(e => e.date === dateStr);
+  const dayEntries = STATE.entries.filter(e => normalizeDate(e.date) === dateStr);
   if (dayEntries.length > 0) {
     let firstMediaUrl = null;
-
     for (const ent of dayEntries) {
       if (ent.media && ent.media.length > 0) {
-        const m = ent.media[0];
-        firstMediaUrl = m.url || m.dataUrl;
+        firstMediaUrl = ent.media[0].url || ent.media[0].dataUrl;
         break;
       }
     }
@@ -1124,7 +1035,6 @@ function createDateCell(dateStr, dayNum, isOtherMonth, isSunday, isToday = false
   }
 
   cell.appendChild(badgeBox);
-
   cell.addEventListener('click', () => {
     STATE.selectedDate = dateStr;
     renderCalendar();
@@ -1134,12 +1044,11 @@ function createDateCell(dateStr, dayNum, isOtherMonth, isSunday, isToday = false
   return cell;
 }
 
-// 6. 타임라인 및 일기 카드 렌더링
 function renderTimeline() {
   const selectedDateStr = STATE.selectedDate;
   document.getElementById('timeline-selected-date').textContent = getFormattedKoreanDate(selectedDateStr);
 
-  const dayEntries = STATE.entries.filter(e => e.date === selectedDateStr);
+  const dayEntries = STATE.entries.filter(e => normalizeDate(e.date) === selectedDateStr);
   const btnWrite = document.getElementById('btn-write');
 
   if (dayEntries.length >= 3) {
@@ -1264,7 +1173,6 @@ function renderTimeline() {
   });
 }
 
-// 7. 이미지 압축 및 비디오 처리 파이프라인
 function compressImage(file, maxWidth = 750, quality = 0.74) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -1283,12 +1191,11 @@ function compressImage(file, maxWidth = 750, quality = 0.74) {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, w, h);
         const dataUrl = canvas.toDataURL('image/jpeg', quality);
-        const base64 = dataUrl.split(',')[1];
         resolve({
           name: file.name,
           type: 'image/jpeg',
           dataUrl: dataUrl,
-          base64: base64
+          base64: dataUrl.split(',')[1]
         });
       };
       img.onerror = reject;
@@ -1301,18 +1208,15 @@ function compressImage(file, maxWidth = 750, quality = 0.74) {
 
 function processVideo(file) {
   return new Promise((resolve, reject) => {
-    if (file.size > 25 * 1024 * 1024) {
-      return reject(new Error('동영상 용량은 최대 25MB 이하만 가능합니다.'));
-    }
+    if (file.size > 25 * 1024 * 1024) return reject(new Error('동영상 용량은 최대 25MB 이하만 가능합니다.'));
     const reader = new FileReader();
     reader.onload = (e) => {
       const dataUrl = e.target.result;
-      const base64 = dataUrl.split(',')[1];
       resolve({
         name: file.name,
         type: file.type || 'video/mp4',
         dataUrl: dataUrl,
-        base64: base64
+        base64: dataUrl.split(',')[1]
       });
     };
     reader.onerror = reject;
@@ -1320,9 +1224,8 @@ function processVideo(file) {
   });
 }
 
-// 8. 작성 및 수정 모달 제어
 function openCreateModal() {
-  const dayEntries = STATE.entries.filter(e => e.date === STATE.selectedDate);
+  const dayEntries = STATE.entries.filter(e => normalizeDate(e.date) === STATE.selectedDate);
   if (dayEntries.length >= 3) {
     showToast('일일 작성 한도(3개)에 이미 도달했습니다.');
     return;
@@ -1367,8 +1270,7 @@ function resetChips() {
 }
 
 function renderPendingMediaPreviews() {
-  const count = STATE.pendingMedia.length;
-  document.getElementById('media-count-label').textContent = count;
+  document.getElementById('media-count-label').textContent = STATE.pendingMedia.length;
   const container = document.getElementById('media-preview-container');
   container.innerHTML = '';
 
@@ -1402,7 +1304,6 @@ function renderPendingMediaPreviews() {
   });
 }
 
-// 9. 일기 저장 실행
 async function handleSaveEntry() {
   const time = document.getElementById('input-entry-time').value || getFormattedTimeString(new Date());
   const content = document.getElementById('input-entry-content').value.trim();
@@ -1423,8 +1324,8 @@ async function handleSaveEntry() {
 
   const entryData = {
     id: entryId,
-    date: STATE.selectedDate,
-    time: time,
+    date: normalizeDate(STATE.selectedDate),
+    time: normalizeTime(time),
     mood: mood,
     weather: weather,
     content: content,
@@ -1432,7 +1333,6 @@ async function handleSaveEntry() {
     updatedAt: new Date().toISOString()
   };
 
-  // 즉시 화면 반영 (0초 체감)
   if (isEditing) {
     const idx = STATE.entries.findIndex(e => e.id === entryId);
     if (idx !== -1) STATE.entries[idx] = entryData;
@@ -1448,11 +1348,9 @@ async function handleSaveEntry() {
   renderTimeline();
   showToast(isEditing ? '수정 완료 (로컬 저장됨)' : '저장 완료 (로컬 저장됨)');
 
-  // 백그라운드 구글 클라우드 동기화
   syncEntryToGAS(entryData);
 }
 
-// 10. 일기 삭제
 async function handleDeleteEntry(id) {
   if (!confirm('정말 이 일기를 삭제하시겠습니까?')) return;
 
@@ -1471,22 +1369,16 @@ async function handleDeleteEntry(id) {
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ action: 'DELETE', id: id })
       });
-    } catch (e) {
-      console.warn('GAS Delete Sync Error:', e);
-    }
+    } catch (e) {}
   }
 }
 
-// 11. 로컬 스토리지 동기화 헬퍼
 function persistLocalCache() {
   try {
     localStorage.setItem('MY_DIARY_ENTRIES_CACHE', JSON.stringify(STATE.entries));
-  } catch (err) {
-    console.warn('LocalStorage Quota Exceeded:', err);
-  }
+  } catch (err) {}
 }
 
-// 12. Google Apps Script 백그라운드 통신
 async function syncEntryToGAS(entryData) {
   if (!STATE.gasUrl) return;
 
@@ -1494,28 +1386,29 @@ async function syncEntryToGAS(entryData) {
     const response = await fetch(STATE.gasUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({
-        action: 'SAVE',
-        entry: entryData
-      })
+      body: JSON.stringify({ action: 'SAVE', entry: entryData })
     });
 
     const result = await response.json();
     if (result && result.status === 'success' && result.entry) {
-      const idx = STATE.entries.findIndex(e => e.id === result.entry.id);
+      const cleanEntry = {
+        ...result.entry,
+        date: normalizeDate(result.entry.date),
+        time: normalizeTime(result.entry.time)
+      };
+      const idx = STATE.entries.findIndex(e => e.id === cleanEntry.id);
       if (idx !== -1) {
-        STATE.entries[idx] = result.entry;
+        STATE.entries[idx] = cleanEntry;
         persistLocalCache();
-        saveEntryToIndexedDB(result.entry);
+        saveEntryToIndexedDB(cleanEntry);
         renderCalendar();
         renderTimeline();
       }
     }
-  } catch (err) {
-    console.warn('Cloud Sync Failed:', err);
-  }
+  } catch (err) {}
 }
 
+// 스마트 병합: 원격 데이터 가져올 때 로컬 데이터를 날려버리지 않고 보존
 async function fetchAllFromGAS() {
   if (!STATE.gasUrl) return;
 
@@ -1523,7 +1416,17 @@ async function fetchAllFromGAS() {
     const response = await fetch(STATE.gasUrl, { method: 'GET' });
     const result = await response.json();
     if (result && result.status === 'success' && Array.isArray(result.data)) {
-      STATE.entries = result.data;
+      const remoteEntries = result.data.map(item => ({
+        ...item,
+        date: normalizeDate(item.date),
+        time: normalizeTime(item.time)
+      }));
+
+      const entryMap = new Map();
+      STATE.entries.forEach(e => entryMap.set(e.id, e));
+      remoteEntries.forEach(e => entryMap.set(e.id, e));
+
+      STATE.entries = Array.from(entryMap.values());
       persistLocalCache();
       renderCalendar();
       renderTimeline();
@@ -1531,14 +1434,11 @@ async function fetchAllFromGAS() {
       const db = await openDatabase();
       const tx = db.transaction(STORE_NAME, 'readwrite');
       const store = tx.objectStore(STORE_NAME);
-      result.data.forEach(item => store.put(item));
+      STATE.entries.forEach(item => store.put(item));
     }
-  } catch (err) {
-    console.warn('Cloud Fetch Failed:', err);
-  }
+  } catch (err) {}
 }
 
-// 13. 라이트박스 제어
 function openLightbox(url, type) {
   const modal = document.getElementById('lightbox-modal');
   const wrap = document.getElementById('lightbox-target-wrap');
@@ -1561,42 +1461,32 @@ function openLightbox(url, type) {
   modal.classList.add('active');
 }
 
-// 14. 이벤트 리스너 바인딩
 document.addEventListener('DOMContentLoaded', async () => {
-  // 1) 즉각 0초 렌더링
   renderCalendar();
   renderTimeline();
 
-  // 2) 백그라운드 IndexedDB 최신 데이터 로드
   const idbEntries = await loadEntriesFromIndexedDB();
   if (idbEntries.length > 0) {
-    STATE.entries = idbEntries;
+    const entryMap = new Map();
+    STATE.entries.forEach(e => entryMap.set(e.id, e));
+    idbEntries.forEach(e => entryMap.set(e.id, e));
+    STATE.entries = Array.from(entryMap.values());
     persistLocalCache();
     renderCalendar();
     renderTimeline();
   }
 
-  // 3) 백그라운드 구글 시트 원격 동기화
   fetchAllFromGAS();
 
-  // 헤더 네비게이션
   document.getElementById('btn-prev-month').addEventListener('click', () => {
-    if (STATE.viewMonth === 0) {
-      STATE.viewMonth = 11;
-      STATE.viewYear -= 1;
-    } else {
-      STATE.viewMonth -= 1;
-    }
+    if (STATE.viewMonth === 0) { STATE.viewMonth = 11; STATE.viewYear -= 1; }
+    else { STATE.viewMonth -= 1; }
     renderCalendar();
   });
 
   document.getElementById('btn-next-month').addEventListener('click', () => {
-    if (STATE.viewMonth === 11) {
-      STATE.viewMonth = 0;
-      STATE.viewYear += 1;
-    } else {
-      STATE.viewMonth += 1;
-    }
+    if (STATE.viewMonth === 11) { STATE.viewMonth = 0; STATE.viewYear += 1; }
+    else { STATE.viewMonth += 1; }
     renderCalendar();
   });
 
@@ -1604,18 +1494,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const today = new Date();
     STATE.viewYear = today.getFullYear();
     STATE.viewMonth = today.getMonth();
-    STATE.selectedDate = getFormattedDateString(today);
+    STATE.selectedDate = normalizeDate(today);
     renderCalendar();
     renderTimeline();
   });
 
-  // 작성 모달 트리거
   document.getElementById('btn-write').addEventListener('click', openCreateModal);
   document.getElementById('btn-close-entry-modal').addEventListener('click', () => {
     document.getElementById('entry-modal').classList.remove('active');
   });
 
-  // 칩 토글 이벤트
   document.querySelectorAll('#mood-chip-list .chip-option').forEach(el => {
     el.addEventListener('click', () => {
       const isActive = el.classList.contains('active');
@@ -1632,7 +1520,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // 미디어 첨부
   const fileInput = document.getElementById('file-input');
   document.getElementById('btn-trigger-file').addEventListener('click', () => {
     if (STATE.pendingMedia.length >= 5) {
@@ -1645,17 +1532,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   fileInput.addEventListener('change', async (e) => {
     const files = Array.from(e.target.files);
     for (const file of files) {
-      if (STATE.pendingMedia.length >= 5) {
-        showToast('최대 5개까지만 등록 가능합니다.');
-        break;
-      }
+      if (STATE.pendingMedia.length >= 5) break;
       try {
         if (file.type.startsWith('image/')) {
-          const compressed = await compressImage(file, 750, 0.74);
-          STATE.pendingMedia.push(compressed);
+          STATE.pendingMedia.push(await compressImage(file, 750, 0.74));
         } else if (file.type.startsWith('video/')) {
-          const videoData = await processVideo(file);
-          STATE.pendingMedia.push(videoData);
+          STATE.pendingMedia.push(await processVideo(file));
         }
       } catch (err) {
         showToast(err.message || '파일 처리 실패');
@@ -1665,16 +1547,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderPendingMediaPreviews();
   });
 
-  // 저장 제출
   document.getElementById('btn-save-entry').addEventListener('click', handleSaveEntry);
 
-  // 라이트박스 닫기
   document.getElementById('btn-close-lightbox').addEventListener('click', () => {
     document.getElementById('lightbox-modal').classList.remove('active');
     document.getElementById('lightbox-target-wrap').innerHTML = '';
   });
 
-  // 검색 모달
   const searchModal = document.getElementById('search-modal');
   const searchInput = document.getElementById('search-keyword-input');
   const searchResults = document.getElementById('search-results-list');
@@ -1710,8 +1589,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       row.style.cssText = 'background:#f2f2f7; padding:10px; border-radius:8px; cursor:pointer; font-size:0.85rem;';
       row.innerHTML = `<strong>${item.date} (${item.time})</strong> - ${item.content ? item.content.slice(0, 35) + '...' : '(미디어 일기)'}`;
       row.onclick = () => {
-        STATE.selectedDate = item.date;
-        const p = item.date.split('-');
+        STATE.selectedDate = normalizeDate(item.date);
+        const p = STATE.selectedDate.split('-');
         STATE.viewYear = parseInt(p[0], 10);
         STATE.viewMonth = parseInt(p[1], 10) - 1;
         renderCalendar();
@@ -1722,7 +1601,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // 설정 모달
   const settingsModal = document.getElementById('settings-modal');
   document.getElementById('btn-open-settings').addEventListener('click', () => {
     document.getElementById('input-gas-url').value = STATE.gasUrl;
@@ -1742,7 +1620,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     fetchAllFromGAS();
   });
 
-  // 백업 파일(JSON) 내보내기
   document.getElementById('btn-export-json').addEventListener('click', () => {
     const blob = new Blob([JSON.stringify(STATE.entries, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
@@ -1751,7 +1628,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     a.click();
   });
 
-  // 백업 파일(JSON) 불러오기
   const fileImport = document.getElementById('file-import-json');
   document.getElementById('btn-import-json-trigger').addEventListener('click', () => fileImport.click());
 
@@ -1763,13 +1639,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       try {
         const imported = JSON.parse(event.target.result);
         if (Array.isArray(imported)) {
-          STATE.entries = imported;
+          STATE.entries = imported.map(i => ({
+            ...i,
+            date: normalizeDate(i.date),
+            time: normalizeTime(i.time)
+          }));
           persistLocalCache();
 
           const db = await openDatabase();
           const tx = db.transaction(STORE_NAME, 'readwrite');
           const store = tx.objectStore(STORE_NAME);
-          imported.forEach(i => store.put(i));
+          STATE.entries.forEach(i => store.put(i));
 
           renderCalendar();
           renderTimeline();
