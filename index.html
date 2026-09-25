@@ -9,6 +9,106 @@
   <meta name="theme-color" content="#f2f2f7">
   <title>나의 일기</title>
 
+  <!-- iOS 홈화면 및 웹 클립 아이콘 태그 -->
+  <link rel="apple-touch-icon" id="apple-touch-icon">
+  <link rel="icon" id="app-favicon" type="image/png">
+
+  <!-- 코지 다이어리 홈화면 아이콘 자동 생성 스크립트 -->
+  <script>
+    (function generateCozyDiaryIcon() {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 180;
+        canvas.height = 180;
+        const ctx = canvas.getContext('2d');
+
+        // 라운드 사각형 범용 드로잉 헬퍼
+        function drawRoundRect(context, x, y, w, h, radius) {
+          let r = radius;
+          if (typeof r === 'number') r = [r, r, r, r];
+          const [tl, tr, br, bl] = r;
+          context.beginPath();
+          context.moveTo(x + tl, y);
+          context.lineTo(x + w - tr, y);
+          context.quadraticCurveTo(x + w, y, x + w, y + tr);
+          context.lineTo(x + w, y + h - br);
+          context.quadraticCurveTo(x + w, y + h, x + w - br, y + h);
+          context.lineTo(x + bl, y + h);
+          context.quadraticCurveTo(x, y + h, x, y + h - bl);
+          context.lineTo(x, y + tl);
+          context.quadraticCurveTo(x, y, x + tl, y);
+          context.closePath();
+        }
+
+        // 1. 전체 부드러운 오프화이트/크림 배경
+        ctx.fillStyle = '#F6F3EE';
+        drawRoundRect(ctx, 0, 0, 180, 180, 38);
+        ctx.fill();
+
+        // 2. 다이어리 부드러운 그림자
+        ctx.shadowColor = 'rgba(92, 64, 46, 0.18)';
+        ctx.shadowBlur = 16;
+        ctx.shadowOffsetY = 8;
+
+        // 3. 다이어리 메인 커버 (포근한 테라코타 모카 브라운)
+        ctx.fillStyle = '#A16E50';
+        drawRoundRect(ctx, 36, 22, 114, 136, 12);
+        ctx.fill();
+
+        // 그림자 초기화
+        ctx.shadowColor = 'transparent';
+
+        // 4. 다이어리 책등(스파인) 음영 라인
+        ctx.fillStyle = '#895538';
+        drawRoundRect(ctx, 36, 22, 22, 136, [12, 0, 0, 12]);
+        ctx.fill();
+
+        // 책등 구분 스티치 라인 (스티치 점선)
+        ctx.strokeStyle = 'rgba(246, 243, 238, 0.45)';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(58, 25);
+        ctx.lineTo(58, 155);
+        ctx.stroke();
+        ctx.setLineDash([]); // 대시 리셋
+
+        // 5. 종이 속지 단면 (은은한 아이보리)
+        ctx.fillStyle = '#FFFDF9';
+        ctx.fillRect(144, 28, 4, 124);
+
+        // 6. 북마크 리본 (차분한 더스티 로즈 핑크)
+        ctx.fillStyle = '#D47B70';
+        ctx.beginPath();
+        ctx.moveTo(92, 22);
+        ctx.lineTo(108, 22);
+        ctx.lineTo(108, 90);
+        ctx.lineTo(100, 81); // 리본 끝 V자 홈
+        ctx.lineTo(92, 90);
+        ctx.closePath();
+        ctx.fill();
+
+        // 7. 가죽 잠금 스트랩
+        ctx.fillStyle = '#895538';
+        drawRoundRect(ctx, 130, 75, 24, 30, 5);
+        ctx.fill();
+
+        // 금빛 메탈 스터드 단추
+        ctx.fillStyle = '#E6C687';
+        ctx.beginPath();
+        ctx.arc(142, 90, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Data URL 변환 후 헤더 태그에 적용
+        const iconDataUrl = canvas.toDataURL('image/png');
+        document.getElementById('apple-touch-icon').setAttribute('href', iconDataUrl);
+        document.getElementById('app-favicon').setAttribute('href', iconDataUrl);
+      } catch (err) {
+        console.warn('Icon generation failed:', err);
+      }
+    })();
+  </script>
+
   <style>
     :root {
       --primary: #007aff;
@@ -826,7 +926,7 @@
  * 0초 부팅 로컬 캐시 + IndexedDB 영구 저장 + Google Apps Script 비동기 백업
  */
 
-// 배포된 구글 앱스 스크립트 웹 앱 기본 URL
+// 구글 앱스 스크립트 웹 앱 기본 URL
 const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbwxajiKQBKqKT8MO2qQl48c4vvKYBNWhkI_FToQXGsBRa3hXePlCP7mSAgPiJruXQ/exec';
 
 // 1. 상태 관리
@@ -840,7 +940,7 @@ const STATE = {
   gasUrl: localStorage.getItem('MY_DIARY_GAS_URL') || DEFAULT_GAS_URL
 };
 
-// 기본 URL이 로컬스토리지에 미등록된 경우 초기화 등록
+// 기본 URL 로컬 스토리지 보장
 if (!localStorage.getItem('MY_DIARY_GAS_URL')) {
   localStorage.setItem('MY_DIARY_GAS_URL', DEFAULT_GAS_URL);
 }
@@ -971,7 +1071,7 @@ function renderCalendar() {
     grid.appendChild(cell);
   }
 
-  // 다음 달 여백 날짜 채우기 (총 35 또는 42셀 보정)
+  // 다음 달 여백 날짜 채우기
   const totalRendered = firstDay + lastDate;
   const remainingCells = (totalRendered % 7 === 0) ? 0 : 7 - (totalRendered % 7);
   for (let d = 1; d <= remainingCells; d++) {
@@ -998,7 +1098,6 @@ function createDateCell(dateStr, dayNum, isOtherMonth, isSunday, isToday = false
   const badgeBox = document.createElement('div');
   badgeBox.className = 'day-badge-container';
 
-  // 해당 일자 일기 및 미디어 여부 판단
   const dayEntries = STATE.entries.filter(e => e.date === dateStr);
   if (dayEntries.length > 0) {
     let firstMediaUrl = null;
@@ -1043,7 +1142,6 @@ function renderTimeline() {
   const dayEntries = STATE.entries.filter(e => e.date === selectedDateStr);
   const btnWrite = document.getElementById('btn-write');
 
-  // 일일 최대 3개 작성 한도 규칙 검사
   if (dayEntries.length >= 3) {
     btnWrite.disabled = true;
     btnWrite.textContent = '작성 한도 도달 (3/3)';
@@ -1065,14 +1163,12 @@ function renderTimeline() {
     return;
   }
 
-  // 시간순 정렬 (오름차순)
   dayEntries.sort((a, b) => (a.time || '').localeCompare(b.time || ''));
 
   dayEntries.forEach(entry => {
     const card = document.createElement('div');
     card.className = 'entry-card';
 
-    // 상단 메타 바
     const metaBar = document.createElement('div');
     metaBar.className = 'entry-meta-bar';
 
@@ -1099,7 +1195,6 @@ function renderTimeline() {
     }
     metaBar.appendChild(leftBox);
 
-    // 액션 버튼 (수정/삭제)
     const actions = document.createElement('div');
     actions.className = 'entry-actions';
 
@@ -1118,7 +1213,6 @@ function renderTimeline() {
     metaBar.appendChild(actions);
     card.appendChild(metaBar);
 
-    // 본문 내용 (줄바꿈 보존)
     if (entry.content && entry.content.trim().length > 0) {
       const body = document.createElement('div');
       body.className = 'entry-body';
@@ -1126,7 +1220,6 @@ function renderTimeline() {
       card.appendChild(body);
     }
 
-    // 미디어 그리드 (최대 5장)
     if (entry.media && entry.media.length > 0) {
       const mediaGrid = document.createElement('div');
       const count = entry.media.length;
@@ -1320,7 +1413,6 @@ async function handleSaveEntry() {
   const selectedWeatherEl = document.querySelector('#weather-chip-list .chip-option.active');
   const weather = selectedWeatherEl ? selectedWeatherEl.getAttribute('data-val') : '';
 
-  // 규칙: 본문 또는 미디어 중 하나 이상 필수 입력
   if (!content && STATE.pendingMedia.length === 0) {
     showToast('본문 텍스트 또는 미디어를 하나 이상 입력해야 합니다.');
     return;
@@ -1340,7 +1432,7 @@ async function handleSaveEntry() {
     updatedAt: new Date().toISOString()
   };
 
-  // 1) 즉시 로컬 캐시 및 UI 반영 (0초 체감)
+  // 즉시 화면 반영 (0초 체감)
   if (isEditing) {
     const idx = STATE.entries.findIndex(e => e.id === entryId);
     if (idx !== -1) STATE.entries[idx] = entryData;
@@ -1356,7 +1448,7 @@ async function handleSaveEntry() {
   renderTimeline();
   showToast(isEditing ? '수정 완료 (로컬 저장됨)' : '저장 완료 (로컬 저장됨)');
 
-  // 2) 백그라운드 구글 클라우드 동기화
+  // 백그라운드 구글 클라우드 동기화
   syncEntryToGAS(entryData);
 }
 
@@ -1372,7 +1464,6 @@ async function handleDeleteEntry(id) {
   renderTimeline();
   showToast('일기가 삭제되었습니다.');
 
-  // 백엔드 삭제 전송
   if (STATE.gasUrl) {
     try {
       fetch(STATE.gasUrl, {
@@ -1411,7 +1502,6 @@ async function syncEntryToGAS(entryData) {
 
     const result = await response.json();
     if (result && result.status === 'success' && result.entry) {
-      // 클라우드에서 정식 발급된 Drive URL로 로컬 상태 갱신
       const idx = STATE.entries.findIndex(e => e.id === result.entry.id);
       if (idx !== -1) {
         STATE.entries[idx] = result.entry;
@@ -1438,7 +1528,6 @@ async function fetchAllFromGAS() {
       renderCalendar();
       renderTimeline();
 
-      // IndexedDB 일괄 갱신
       const db = await openDatabase();
       const tx = db.transaction(STORE_NAME, 'readwrite');
       const store = tx.objectStore(STORE_NAME);
@@ -1526,7 +1615,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('entry-modal').classList.remove('active');
   });
 
-  // 칩 토글 이벤트 (클릭 시 선택/해제 토글)
+  // 칩 토글 이벤트
   document.querySelectorAll('#mood-chip-list .chip-option').forEach(el => {
     el.addEventListener('click', () => {
       const isActive = el.classList.contains('active');
