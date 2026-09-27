@@ -9,9 +9,11 @@
   <meta name="theme-color" content="#f2f2f7">
   <title>나의 일기</title>
 
+  <!-- iOS 홈화면 및 웹 클립 아이콘 태그 -->
   <link rel="apple-touch-icon" id="apple-touch-icon">
   <link rel="icon" id="app-favicon" type="image/png">
 
+  <!-- 코지 다이어리 홈화면 아이콘 자동 생성 스크립트 -->
   <script>
     (function generateCozyDiaryIcon() {
       try {
@@ -105,6 +107,10 @@
       --text-muted: #8e8e93;
       --border-color: #e5e5ea;
       --danger: #ff3b30;
+      --special-color: #c83e4d;
+      --special-border: #e5828d;
+      --special-bg: rgba(200, 62, 77, 0.08);
+      --special-bg-active: rgba(200, 62, 77, 0.14);
       --safe-bottom: env(safe-area-inset-bottom, 16px);
       --radius-sm: 8px;
       --radius-md: 14px;
@@ -142,6 +148,7 @@
       position: relative;
     }
 
+    /* 상단 네비게이션 헤더 */
     header.app-header {
       position: sticky;
       top: 0;
@@ -205,12 +212,15 @@
       background: #e5e5ea;
     }
 
+    /* 캘린더 보드 */
     .calendar-card {
       background: var(--bg-card);
       margin: 12px 16px;
       padding: 16px 12px 12px 12px;
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-sm);
+      user-select: none;
+      touch-action: pan-y; /* 수직 스크롤 유지, 수평 제스처 감지 */
     }
 
     .weekday-bar {
@@ -239,19 +249,34 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      border-radius: var(--radius-sm);
+      border-radius: 10px;
       cursor: pointer;
       padding-top: 3px;
       position: relative;
+      border: 1.5px solid transparent;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
     }
 
     .day-cell.other-month {
       opacity: 0.25;
     }
 
+    /* 일반 선택 */
     .day-cell.selected {
       background: #eef5ff;
-      border: 1.5px solid var(--primary);
+      border-color: var(--primary);
+    }
+
+    /* 기억할 날 (스페셜 데이) 앤틱 로즈 레드 박스 */
+    .day-cell.is-special {
+      border-color: var(--special-border);
+      background-color: var(--special-bg);
+    }
+
+    /* 기억할 날이면서 현재 선택된 상태 */
+    .day-cell.is-special.selected {
+      border-color: var(--special-color);
+      background-color: var(--special-bg-active);
     }
 
     .day-number {
@@ -303,6 +328,7 @@
       background: var(--primary);
     }
 
+    /* 타임라인 헤더 및 카드 */
     .timeline-container {
       padding: 8px 16px;
     }
@@ -312,28 +338,76 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
+      gap: 8px;
     }
 
     .timeline-date-title {
       font-size: 1.05rem;
       font-weight: 700;
       color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-shrink: 1;
     }
 
-    .btn-write-entry {
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      padding: 8px 14px;
+    .timeline-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    /* 기억할 날 토글 버튼 */
+    .btn-special-day {
+      background: var(--bg-card);
+      color: #555558;
+      border: 1px solid var(--border-color);
+      padding: 8px 12px;
       border-radius: var(--radius-md);
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 600;
       display: inline-flex;
       align-items: center;
       gap: 4px;
       cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+    }
+
+    .btn-special-day.active {
+      background: #fdf2f2;
+      color: var(--special-color);
+      border-color: #f1b0b7;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(200, 62, 77, 0.16);
+    }
+
+    .btn-special-day:active {
+      transform: scale(0.97);
+    }
+
+    /* 기록 쓰기 버튼 */
+    .btn-write-entry {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 8px 13px;
+      border-radius: var(--radius-md);
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
       box-shadow: 0 2px 8px rgba(0, 122, 255, 0.28);
       transition: opacity 0.2s;
+      user-select: none;
     }
 
     .btn-write-entry:disabled {
@@ -459,6 +533,7 @@
       font-size: 0.9rem;
     }
 
+    /* 모달 베이스 */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -707,7 +782,8 @@
     </div>
   </header>
 
-  <section class="calendar-card">
+  <!-- 캘린더 보드 (스와이프 제스처 지원) -->
+  <section id="calendar-card" class="calendar-card">
     <div class="weekday-bar">
       <span class="sun">일</span>
       <span>월</span>
@@ -720,10 +796,14 @@
     <div id="calendar-grid" class="calendar-grid"></div>
   </section>
 
+  <!-- 하단 타임라인 영역 -->
   <section class="timeline-container">
     <div class="timeline-header">
       <span id="timeline-selected-date" class="timeline-date-title">2026년 9월 25일 (금)</span>
-      <button id="btn-write" class="btn-write-entry">➕ 기록 쓰기</button>
+      <div class="timeline-header-actions">
+        <button id="btn-special-day" class="btn-special-day" title="기억할 날로 지정">☆ 기억할 날</button>
+        <button id="btn-write" class="btn-write-entry">➕ 기록 쓰기</button>
+      </div>
     </div>
     <div id="timeline-list"></div>
   </section>
@@ -831,7 +911,6 @@
 <script>
 const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbwxajiKQBKqKT8MO2qQl48c4vvKYBNWhkI_FToQXGsBRa3hXePlCP7mSAgPiJruXQ/exec';
 
-// 날짜 정규화 헬퍼 (구글 시트의 영문 Date 객체 문자열 복구)
 function normalizeDate(dVal) {
   if (!dVal) return "";
   const s = String(dVal).trim();
@@ -857,8 +936,20 @@ function normalizeTime(tVal) {
   return s.slice(0, 5);
 }
 
+// 기억할 날(스페셜 데이) 로컬 캐시 복원
+let initialSpecialDates = [];
+const cachedSpecialDates = localStorage.getItem('MY_DIARY_SPECIAL_DATES');
+if (cachedSpecialDates) {
+  try {
+    initialSpecialDates = JSON.parse(cachedSpecialDates);
+  } catch (e) {
+    initialSpecialDates = [];
+  }
+}
+
 const STATE = {
   entries: [],
+  specialDates: Array.isArray(initialSpecialDates) ? initialSpecialDates : [],
   selectedDate: normalizeDate(new Date()),
   viewYear: new Date().getFullYear(),
   viewMonth: new Date().getMonth(),
@@ -871,7 +962,7 @@ if (!localStorage.getItem('MY_DIARY_GAS_URL')) {
   localStorage.setItem('MY_DIARY_GAS_URL', DEFAULT_GAS_URL);
 }
 
-// 0초 렌더링 시 기존 캐시 날짜 정규화 복구
+// 0초 렌더링용 일기 캐시 복원
 const cachedData = localStorage.getItem('MY_DIARY_ENTRIES_CACHE');
 if (cachedData) {
   try {
@@ -962,6 +1053,30 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 2600);
 }
 
+// 월 이동 공통 함수
+function goToPrevMonth() {
+  if (STATE.viewMonth === 0) {
+    STATE.viewMonth = 11;
+    STATE.viewYear -= 1;
+  } else {
+    STATE.viewMonth -= 1;
+  }
+  renderCalendar();
+}
+
+function goToNextMonth() {
+  if (STATE.viewMonth === 11) {
+    STATE.viewMonth = 0;
+    STATE.viewYear += 1;
+  } else {
+    STATE.viewMonth += 1;
+  }
+  renderCalendar();
+}
+
+// 스와이프 제스처와 날짜 클릭 간섭 방지 플래그
+let isSwiping = false;
+
 function renderCalendar() {
   const year = STATE.viewYear;
   const month = STATE.viewMonth;
@@ -1003,6 +1118,11 @@ function createDateCell(dateStr, dayNum, isOtherMonth, isSunday, isToday = false
   if (isToday) cell.classList.add('is-today');
   if (dateStr === STATE.selectedDate) cell.classList.add('selected');
 
+  // '기억할 날' 앤틱 로즈 박스 스타일링 적용
+  if (STATE.specialDates.includes(dateStr)) {
+    cell.classList.add('is-special');
+  }
+
   const numSpan = document.createElement('span');
   numSpan.className = 'day-number';
   numSpan.textContent = dayNum;
@@ -1035,7 +1155,10 @@ function createDateCell(dateStr, dayNum, isOtherMonth, isSunday, isToday = false
   }
 
   cell.appendChild(badgeBox);
+
+  // 스와이프 도중 손을 뗐을 때 날짜가 잘못 클릭되는 현상 방지
   cell.addEventListener('click', () => {
+    if (isSwiping) return;
     STATE.selectedDate = dateStr;
     renderCalendar();
     renderTimeline();
@@ -1048,15 +1171,28 @@ function renderTimeline() {
   const selectedDateStr = STATE.selectedDate;
   document.getElementById('timeline-selected-date').textContent = getFormattedKoreanDate(selectedDateStr);
 
+  // '기억할 날' 버튼 상태 동기화
+  const btnSpecial = document.getElementById('btn-special-day');
+  if (btnSpecial) {
+    if (STATE.specialDates.includes(selectedDateStr)) {
+      btnSpecial.classList.add('active');
+      btnSpecial.textContent = '★ 기억할 날';
+    } else {
+      btnSpecial.classList.remove('active');
+      btnSpecial.textContent = '☆ 기억할 날';
+    }
+  }
+
   const dayEntries = STATE.entries.filter(e => normalizeDate(e.date) === selectedDateStr);
   const btnWrite = document.getElementById('btn-write');
 
+  // (0/3) 제거 및 심플한 텍스트 유지
   if (dayEntries.length >= 3) {
     btnWrite.disabled = true;
-    btnWrite.textContent = '작성 한도 도달 (3/3)';
+    btnWrite.textContent = '작성 한도 도달';
   } else {
     btnWrite.disabled = false;
-    btnWrite.textContent = `➕ 기록 쓰기 (${dayEntries.length}/3)`;
+    btnWrite.textContent = '➕ 기록 쓰기';
   }
 
   const container = document.getElementById('timeline-list');
@@ -1408,7 +1544,6 @@ async function syncEntryToGAS(entryData) {
   } catch (err) {}
 }
 
-// 스마트 병합: 원격 데이터 가져올 때 로컬 데이터를 날려버리지 않고 보존
 async function fetchAllFromGAS() {
   if (!STATE.gasUrl) return;
 
@@ -1478,17 +1613,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   fetchAllFromGAS();
 
-  document.getElementById('btn-prev-month').addEventListener('click', () => {
-    if (STATE.viewMonth === 0) { STATE.viewMonth = 11; STATE.viewYear -= 1; }
-    else { STATE.viewMonth -= 1; }
-    renderCalendar();
-  });
-
-  document.getElementById('btn-next-month').addEventListener('click', () => {
-    if (STATE.viewMonth === 11) { STATE.viewMonth = 0; STATE.viewYear += 1; }
-    else { STATE.viewMonth += 1; }
-    renderCalendar();
-  });
+  // 버튼 클릭을 통한 이전/다음 달 이동
+  document.getElementById('btn-prev-month').addEventListener('click', goToPrevMonth);
+  document.getElementById('btn-next-month').addEventListener('click', goToNextMonth);
 
   document.getElementById('btn-goto-today').addEventListener('click', () => {
     const today = new Date();
@@ -1498,6 +1625,69 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderCalendar();
     renderTimeline();
   });
+
+  // [기억할 날] 토글 이벤트 바인딩
+  document.getElementById('btn-special-day').addEventListener('click', () => {
+    const curDate = STATE.selectedDate;
+    const idx = STATE.specialDates.indexOf(curDate);
+    if (idx === -1) {
+      STATE.specialDates.push(curDate);
+      showToast('기억할 날로 지정되었습니다.');
+    } else {
+      STATE.specialDates.splice(idx, 1);
+      showToast('기억할 날 지정이 해제되었습니다.');
+    }
+
+    try {
+      localStorage.setItem('MY_DIARY_SPECIAL_DATES', JSON.stringify(STATE.specialDates));
+    } catch (e) {}
+
+    renderCalendar();
+    renderTimeline();
+  });
+
+  // 캘린더 스와이프 제스처 바인딩 (월 이동 및 탭 간섭 완벽 격리)
+  const calendarCard = document.getElementById('calendar-card');
+  let touchStartX = 0;
+  let touchStartY = 0;
+
+  calendarCard.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      isSwiping = false;
+    }
+  }, { passive: true });
+
+  calendarCard.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 1) {
+      const diffX = e.touches[0].clientX - touchStartX;
+      const diffY = e.touches[0].clientY - touchStartY;
+      // 수평 이동이 25px 이상이면서 수직 스크롤보다 우세할 때 스와이프 상태로 전환
+      if (Math.abs(diffX) > 25 && Math.abs(diffX) > Math.abs(diffY) * 1.4) {
+        isSwiping = true;
+      }
+    }
+  }, { passive: true });
+
+  calendarCard.addEventListener('touchend', (e) => {
+    if (e.changedTouches.length === 1) {
+      const diffX = e.changedTouches[0].clientX - touchStartX;
+      const diffY = e.changedTouches[0].clientY - touchStartY;
+
+      // 45px 이상 스와이프가 확인된 경우 달 이동 실행
+      if (isSwiping && Math.abs(diffX) >= 45 && Math.abs(diffX) > Math.abs(diffY)) {
+        if (diffX > 0) {
+          goToPrevMonth(); // 왼쪽 -> 오른쪽: 이전 달
+        } else {
+          goToNextMonth(); // 오른쪽 -> 왼쪽: 다음 달
+        }
+        setTimeout(() => { isSwiping = false; }, 80);
+      } else {
+        setTimeout(() => { isSwiping = false; }, 50);
+      }
+    }
+  }, { passive: true });
 
   document.getElementById('btn-write').addEventListener('click', openCreateModal);
   document.getElementById('btn-close-entry-modal').addEventListener('click', () => {
@@ -1620,14 +1810,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     fetchAllFromGAS();
   });
 
+  // 백업 파일 내보내기 (기억할 날 목록까지 함께 안전 백업)
   document.getElementById('btn-export-json').addEventListener('click', () => {
-    const blob = new Blob([JSON.stringify(STATE.entries, null, 2)], { type: 'application/json' });
+    const backupData = {
+      version: 2,
+      specialDates: STATE.specialDates,
+      entries: STATE.entries
+    };
+    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `my_diary_backup_${getFormattedDateString(new Date())}.json`;
     a.click();
   });
 
+  // 백업 파일 불러오기 (기존 배열 및 신규 복합 형식 양방향 호환)
   const fileImport = document.getElementById('file-import-json');
   document.getElementById('btn-import-json-trigger').addEventListener('click', () => fileImport.click());
 
@@ -1638,8 +1835,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     reader.onload = async (event) => {
       try {
         const imported = JSON.parse(event.target.result);
+        let entriesToRestore = [];
+
         if (Array.isArray(imported)) {
-          STATE.entries = imported.map(i => ({
+          entriesToRestore = imported;
+        } else if (imported && Array.isArray(imported.entries)) {
+          entriesToRestore = imported.entries;
+          if (Array.isArray(imported.specialDates)) {
+            STATE.specialDates = imported.specialDates;
+            try {
+              localStorage.setItem('MY_DIARY_SPECIAL_DATES', JSON.stringify(STATE.specialDates));
+            } catch (e) {}
+          }
+        }
+
+        if (entriesToRestore.length > 0) {
+          STATE.entries = entriesToRestore.map(i => ({
             ...i,
             date: normalizeDate(i.date),
             time: normalizeTime(i.time)
@@ -1653,7 +1864,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
           renderCalendar();
           renderTimeline();
-          showToast(`성공적으로 ${imported.length}건의 일기를 복원했습니다.`);
+          showToast(`성공적으로 ${STATE.entries.length}건의 일기를 복원했습니다.`);
           settingsModal.classList.remove('active');
         } else {
           showToast('올바르지 않은 JSON 파일 형식입니다.');
