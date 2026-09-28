@@ -34,7 +34,7 @@
           context.quadraticCurveTo(x + w, y + h, x + w - br, y + h);
           context.lineTo(x + bl, y + h);
           context.quadraticCurveTo(x, y + h, x, y + h - bl);
-          context.lineTo(x, y + tl);
+          context.lineTo(x + tl);
           context.quadraticCurveTo(x, y, x + tl, y);
           context.closePath();
         }
@@ -148,7 +148,6 @@
       position: relative;
     }
 
-    /* 상단 네비게이션 헤더 */
     header.app-header {
       position: sticky;
       top: 0;
@@ -212,7 +211,7 @@
       background: #e5e5ea;
     }
 
-    /* 캘린더 보드 (스와이프 제스처 및 개방감 개선) */
+    /* 캘린더 보드 */
     .calendar-card {
       background: var(--bg-card);
       margin: 12px 16px;
@@ -240,10 +239,10 @@
     .calendar-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      row-gap: 8px; /* 세로 행 간격 확장 */
+      row-gap: 8px;
     }
 
-    /* 날짜 셀: 52px -> 58px 높이 확장 및 상하 여백 최적화 */
+    /* 날짜 셀 높이 58px 및 하단 여백 확보 */
     .day-cell {
       height: 58px;
       display: flex;
@@ -262,19 +261,16 @@
       opacity: 0.25;
     }
 
-    /* 일반 선택 박스 */
     .day-cell.selected {
       background: #eef5ff;
       border-color: var(--primary);
     }
 
-    /* 기억할 날 (스페셜 데이) 앤틱 로즈 레드 박스 */
     .day-cell.is-special {
       border-color: var(--special-border);
       background-color: var(--special-bg);
     }
 
-    /* 기억할 날이면서 현재 선택된 상태 */
     .day-cell.is-special.selected {
       border-color: var(--special-color);
       background-color: var(--special-bg-active);
@@ -306,7 +302,6 @@
       color: #ffffff;
     }
 
-    /* 숫자와 썸네일 간격 및 바닥 여백 최적화 */
     .day-badge-container {
       margin-top: 3px;
       height: 20px;
@@ -343,7 +338,6 @@
       gap: 6px;
     }
 
-    /* 요일 잘림 방지 (0.95rem 및 미세 자간 조절) */
     .timeline-date-title {
       font-size: 0.95rem;
       font-weight: 700;
@@ -360,7 +354,6 @@
       flex-shrink: 0;
     }
 
-    /* 기억할 날 토글 버튼 */
     .btn-special-day {
       background: var(--bg-card);
       color: #555558;
@@ -392,7 +385,6 @@
       transform: scale(0.97);
     }
 
-    /* 기록 쓰기 버튼 */
     .btn-write-entry {
       background: var(--primary);
       color: #fff;
@@ -526,6 +518,7 @@
       color: #ffffff;
       font-size: 0.85rem;
       pointer-events: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
 
     .empty-state {
@@ -710,39 +703,76 @@
 
     .setting-section:last-child { border-bottom: none; }
 
+    /* 핀치 줌 & 스와이프를 지원하는 전체화면 라이트박스 */
     #lightbox-modal {
-      background: rgba(0, 0, 0, 0.94);
+      background: rgba(0, 0, 0, 0.96);
       align-items: center;
       justify-content: center;
+      touch-action: none;
+      overflow: hidden;
     }
 
-    .lightbox-content-box {
-      max-width: 95vw;
-      max-height: 85vh;
+    .lightbox-header-bar {
+      position: absolute;
+      top: calc(env(safe-area-inset-top, 20px) + 14px);
+      left: 0;
+      width: 100%;
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
+      padding: 0 20px;
+      z-index: 120;
+      pointer-events: none;
     }
 
-    .lightbox-content-box img, .lightbox-content-box video {
-      max-width: 100%;
-      max-height: 80vh;
-      border-radius: var(--radius-sm);
-      object-fit: contain;
+    .lightbox-counter {
+      color: #ffffff;
+      font-size: 0.88rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.22);
+      padding: 4px 12px;
+      border-radius: 14px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      user-select: none;
     }
 
     .btn-lightbox-close {
-      position: absolute;
-      top: calc(env(safe-area-inset-top, 20px) + 16px);
-      right: 20px;
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.22);
       border: none;
       color: #fff;
-      font-size: 1.5rem;
-      width: 40px;
-      height: 40px;
+      font-size: 1.4rem;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       cursor: pointer;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    .lightbox-content-box {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .lightbox-content-box img,
+    .lightbox-content-box video {
+      max-width: 100vw;
+      max-height: 85vh;
+      object-fit: contain;
+      user-select: none;
+      -webkit-user-drag: none;
+      transform-origin: center center;
+      will-change: transform;
     }
 
     #toast-msg {
@@ -783,7 +813,7 @@
     </div>
   </header>
 
-  <!-- 캘린더 보드 (스와이프 제스처 지원) -->
+  <!-- 캘린더 보드 -->
   <section id="calendar-card" class="calendar-card">
     <div class="weekday-bar">
       <span class="sun">일</span>
@@ -901,9 +931,12 @@
   </div>
 </div>
 
-<!-- 라이트박스 -->
+<!-- 미디어 라이트박스 -->
 <div id="lightbox-modal" class="modal-overlay">
-  <button id="btn-close-lightbox" class="btn-lightbox-close">✕</button>
+  <div class="lightbox-header-bar">
+    <span id="lightbox-counter" class="lightbox-counter">1 / 1</span>
+    <button id="btn-close-lightbox" class="btn-lightbox-close">✕</button>
+  </div>
   <div id="lightbox-target-wrap" class="lightbox-content-box"></div>
 </div>
 
@@ -937,7 +970,6 @@ function normalizeTime(tVal) {
   return s.slice(0, 5);
 }
 
-// 기억할 날(스페셜 데이) 로컬 캐시 복원
 let initialSpecialDates = [];
 const cachedSpecialDates = localStorage.getItem('MY_DIARY_SPECIAL_DATES');
 if (cachedSpecialDates) {
@@ -963,7 +995,6 @@ if (!localStorage.getItem('MY_DIARY_GAS_URL')) {
   localStorage.setItem('MY_DIARY_GAS_URL', DEFAULT_GAS_URL);
 }
 
-// 0초 렌더링용 일기 캐시 복원
 const cachedData = localStorage.getItem('MY_DIARY_ENTRIES_CACHE');
 if (cachedData) {
   try {
@@ -1054,7 +1085,6 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 2600);
 }
 
-// 월 이동 공통 함수
 function goToPrevMonth() {
   if (STATE.viewMonth === 0) {
     STATE.viewMonth = 11;
@@ -1075,7 +1105,6 @@ function goToNextMonth() {
   renderCalendar();
 }
 
-// 스와이프 제스처와 날짜 클릭 간섭 방지 플래그
 let isSwiping = false;
 
 function renderCalendar() {
@@ -1119,7 +1148,6 @@ function createDateCell(dateStr, dayNum, isOtherMonth, isSunday, isToday = false
   if (isToday) cell.classList.add('is-today');
   if (dateStr === STATE.selectedDate) cell.classList.add('selected');
 
-  // '기억할 날' 앤틱 로즈 박스 스타일링 적용
   if (STATE.specialDates.includes(dateStr)) {
     cell.classList.add('is-special');
   }
@@ -1137,7 +1165,12 @@ function createDateCell(dateStr, dayNum, isOtherMonth, isSunday, isToday = false
     let firstMediaUrl = null;
     for (const ent of dayEntries) {
       if (ent.media && ent.media.length > 0) {
-        firstMediaUrl = ent.media[0].url || ent.media[0].dataUrl;
+        const m = ent.media[0];
+        // 동영상인 경우 생성된 첫 장면 썸네일(thumbUrl) 우선 매핑
+        firstMediaUrl = m.thumbUrl || m.url || m.dataUrl;
+        if (m.type && m.type.startsWith('video/') && !m.thumbUrl) {
+          firstMediaUrl = null; // 구버전 썸네일 없는 영상은 도트로 안전 대체
+        }
         break;
       }
     }
@@ -1157,7 +1190,6 @@ function createDateCell(dateStr, dayNum, isOtherMonth, isSunday, isToday = false
 
   cell.appendChild(badgeBox);
 
-  // 스와이프 도중 손을 뗐을 때 날짜가 잘못 클릭되는 현상 방지
   cell.addEventListener('click', () => {
     if (isSwiping) return;
     STATE.selectedDate = dateStr;
@@ -1172,7 +1204,6 @@ function renderTimeline() {
   const selectedDateStr = STATE.selectedDate;
   document.getElementById('timeline-selected-date').textContent = getFormattedKoreanDate(selectedDateStr);
 
-  // '기억할 날' 버튼 상태 동기화
   const btnSpecial = document.getElementById('btn-special-day');
   if (btnSpecial) {
     if (STATE.specialDates.includes(selectedDateStr)) {
@@ -1270,35 +1301,42 @@ function renderTimeline() {
       const count = entry.media.length;
       mediaGrid.className = `media-grid count-${count > 2 ? 3 : count}`;
 
-      entry.media.forEach(m => {
+      entry.media.forEach((m, mIdx) => {
         const itemWrap = document.createElement('div');
         itemWrap.className = 'media-item-wrap';
         const targetSrc = m.url || m.dataUrl;
 
         if (m.type && m.type.startsWith('video/')) {
-          const video = document.createElement('video');
-          video.src = targetSrc;
-          video.muted = true;
-          video.playsInline = true;
-          video.preload = 'metadata';
-          itemWrap.appendChild(video);
+          // 동영상: 썸네일 사진이 있으면 사진으로 선명하게 렌더링 + 재생 뱃지
+          if (m.thumbUrl) {
+            const img = document.createElement('img');
+            img.setAttribute('referrerpolicy', 'no-referrer');
+            img.loading = 'lazy';
+            img.src = m.thumbUrl;
+            itemWrap.appendChild(img);
+          } else {
+            const video = document.createElement('video');
+            video.src = targetSrc;
+            video.muted = true;
+            video.playsInline = true;
+            video.preload = 'metadata';
+            itemWrap.appendChild(video);
+          }
 
           const badge = document.createElement('div');
           badge.className = 'video-play-overlay';
           badge.innerHTML = '▶';
           itemWrap.appendChild(badge);
-
-          itemWrap.onclick = () => openLightbox(targetSrc, 'video');
         } else {
+          // 사진 렌더링
           const img = document.createElement('img');
           img.setAttribute('referrerpolicy', 'no-referrer');
           img.loading = 'lazy';
           img.src = targetSrc;
           itemWrap.appendChild(img);
-
-          itemWrap.onclick = () => openLightbox(targetSrc, 'image');
         }
 
+        itemWrap.onclick = () => openLightbox(entry.media, mIdx);
         mediaGrid.appendChild(itemWrap);
       });
 
@@ -1342,9 +1380,80 @@ function compressImage(file, maxWidth = 750, quality = 0.74) {
   });
 }
 
-function processVideo(file) {
+// 동영상 첫 장면(포스터) 캔버스 자동 캡처 함수
+function captureVideoPoster(file) {
+  return new Promise((resolve) => {
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.muted = true;
+    video.playsInline = true;
+    const fileUrl = URL.createObjectURL(file);
+    video.src = fileUrl;
+
+    let resolved = false;
+
+    const cleanup = () => {
+      URL.revokeObjectURL(fileUrl);
+    };
+
+    const doCapture = () => {
+      if (resolved) return;
+      resolved = true;
+      try {
+        const canvas = document.createElement('canvas');
+        let w = video.videoWidth || 300;
+        let h = video.videoHeight || 300;
+        const maxW = 300;
+        if (w > maxW) {
+          h = Math.round((h * maxW) / w);
+          w = maxW;
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, w, h);
+        const posterDataUrl = canvas.toDataURL('image/jpeg', 0.65);
+        cleanup();
+        resolve(posterDataUrl);
+      } catch (err) {
+        cleanup();
+        resolve(null);
+      }
+    };
+
+    video.onloadeddata = () => {
+      video.currentTime = 0.1;
+    };
+
+    video.onseeked = () => {
+      doCapture();
+    };
+
+    video.onerror = () => {
+      cleanup();
+      resolve(null);
+    };
+
+    // 타임아웃 방어 (1.5초 내 캡처 미완료 시 영상 업로드 유지)
+    setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        cleanup();
+        resolve(null);
+      }
+    }, 1500);
+  });
+}
+
+async function processVideo(file) {
+  if (file.size > 25 * 1024 * 1024) {
+    throw new Error('동영상 용량은 최대 25MB 이하만 가능합니다.');
+  }
+
+  // 첫 프레임 사진 썸네일 캡처
+  const thumbUrl = await captureVideoPoster(file);
+
   return new Promise((resolve, reject) => {
-    if (file.size > 25 * 1024 * 1024) return reject(new Error('동영상 용량은 최대 25MB 이하만 가능합니다.'));
     const reader = new FileReader();
     reader.onload = (e) => {
       const dataUrl = e.target.result;
@@ -1352,7 +1461,8 @@ function processVideo(file) {
         name: file.name,
         type: file.type || 'video/mp4',
         dataUrl: dataUrl,
-        base64: dataUrl.split(',')[1]
+        base64: dataUrl.split(',')[1],
+        thumbUrl: thumbUrl
       });
     };
     reader.onerror = reject;
@@ -1413,12 +1523,25 @@ function renderPendingMediaPreviews() {
   STATE.pendingMedia.forEach((m, idx) => {
     const box = document.createElement('div');
     box.className = 'preview-box';
-    const src = m.dataUrl || m.url;
+    const src = m.thumbUrl || m.dataUrl || m.url;
 
     if (m.type && m.type.startsWith('video/')) {
-      const v = document.createElement('video');
-      v.src = src;
-      box.appendChild(v);
+      if (m.thumbUrl) {
+        const img = document.createElement('img');
+        img.src = m.thumbUrl;
+        box.appendChild(img);
+      } else {
+        const v = document.createElement('video');
+        v.src = src;
+        box.appendChild(v);
+      }
+      const badge = document.createElement('div');
+      badge.className = 'video-play-overlay';
+      badge.style.width = '24px';
+      badge.style.height = '24px';
+      badge.style.fontSize = '0.65rem';
+      badge.innerHTML = '▶';
+      box.appendChild(badge);
     } else {
       const img = document.createElement('img');
       img.setAttribute('referrerpolicy', 'no-referrer');
@@ -1534,6 +1657,14 @@ async function syncEntryToGAS(entryData) {
       };
       const idx = STATE.entries.findIndex(e => e.id === cleanEntry.id);
       if (idx !== -1) {
+        // 기존 생성된 동영상 thumbUrl 유지 보존
+        if (entryData.media && cleanEntry.media) {
+          cleanEntry.media = cleanEntry.media.map((m, i) => ({
+            ...m,
+            thumbUrl: m.thumbUrl || (entryData.media[i] ? entryData.media[i].thumbUrl : null)
+          }));
+        }
+
         STATE.entries[idx] = cleanEntry;
         persistLocalCache();
         saveEntryToIndexedDB(cleanEntry);
@@ -1559,7 +1690,16 @@ async function fetchAllFromGAS() {
 
       const entryMap = new Map();
       STATE.entries.forEach(e => entryMap.set(e.id, e));
-      remoteEntries.forEach(e => entryMap.set(e.id, e));
+      remoteEntries.forEach(e => {
+        const existing = entryMap.get(e.id);
+        if (existing && existing.media && e.media) {
+          e.media = e.media.map((m, i) => ({
+            ...m,
+            thumbUrl: m.thumbUrl || (existing.media[i] ? existing.media[i].thumbUrl : null)
+          }));
+        }
+        entryMap.set(e.id, e);
+      });
 
       STATE.entries = Array.from(entryMap.values());
       persistLocalCache();
@@ -1574,27 +1714,197 @@ async function fetchAllFromGAS() {
   } catch (err) {}
 }
 
-function openLightbox(url, type) {
-  const modal = document.getElementById('lightbox-modal');
+/**
+ * ----------------------------------------------------
+ * 전체화면 라이트박스 로직: 핀치 투 줌 & 스와이프 탐색
+ * ----------------------------------------------------
+ */
+let currentLightboxMedia = [];
+let currentLightboxIndex = 0;
+
+let currentScale = 1;
+let currentTranslateX = 0;
+let currentTranslateY = 0;
+
+let initialPinchDistance = 0;
+let initialScale = 1;
+let touchStartX = 0;
+let touchStartY = 0;
+let touchStartTranslateX = 0;
+let touchStartTranslateY = 0;
+let isPinching = false;
+let isSwipingMedia = false;
+
+function getDistance(t1, t2) {
+  return Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+}
+
+function applyTransform(animate = false) {
+  const target = document.querySelector('#lightbox-target-wrap img');
+  if (!target) return;
+  target.style.transition = animate ? 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)' : 'none';
+  target.style.transform = `translate3d(${currentTranslateX}px, ${currentTranslateY}px, 0) scale(${currentScale})`;
+}
+
+function resetTransform() {
+  currentScale = 1;
+  currentTranslateX = 0;
+  currentTranslateY = 0;
+  applyTransform(false);
+}
+
+function openLightbox(mediaList, index = 0) {
+  if (!mediaList || mediaList.length === 0) return;
+  currentLightboxMedia = mediaList;
+  currentLightboxIndex = index;
+
+  document.getElementById('lightbox-modal').classList.add('active');
+  renderLightboxItem();
+}
+
+function renderLightboxItem() {
+  resetTransform();
+
   const wrap = document.getElementById('lightbox-target-wrap');
   wrap.innerHTML = '';
 
-  if (type === 'video') {
+  const counter = document.getElementById('lightbox-counter');
+  if (currentLightboxMedia.length > 1) {
+    counter.style.display = 'block';
+    counter.textContent = `${currentLightboxIndex + 1} / ${currentLightboxMedia.length}`;
+  } else {
+    counter.style.display = 'none';
+  }
+
+  const item = currentLightboxMedia[currentLightboxIndex];
+  if (!item) return;
+
+  const targetSrc = item.url || item.dataUrl;
+
+  if (item.type && item.type.startsWith('video/')) {
     const v = document.createElement('video');
-    v.src = url;
+    v.src = targetSrc;
     v.controls = true;
     v.autoplay = true;
     v.playsInline = true;
+    if (item.thumbUrl) v.poster = item.thumbUrl;
     wrap.appendChild(v);
   } else {
     const img = document.createElement('img');
     img.setAttribute('referrerpolicy', 'no-referrer');
-    img.src = url;
+    img.src = targetSrc;
     wrap.appendChild(img);
   }
-
-  modal.classList.add('active');
 }
+
+function closeLightbox() {
+  const modal = document.getElementById('lightbox-modal');
+  modal.classList.remove('active');
+  const wrap = document.getElementById('lightbox-target-wrap');
+  wrap.innerHTML = '';
+  resetTransform();
+}
+
+const lightboxModal = document.getElementById('lightbox-modal');
+
+lightboxModal.addEventListener('touchstart', (e) => {
+  const currentItem = currentLightboxMedia[currentLightboxIndex];
+  const isVideo = currentItem && currentItem.type && currentItem.type.startsWith('video/');
+
+  if (!isVideo && e.touches.length === 2) {
+    isPinching = true;
+    isSwipingMedia = false;
+    initialPinchDistance = getDistance(e.touches[0], e.touches[1]);
+    initialScale = currentScale;
+  } else if (e.touches.length === 1) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchStartTranslateX = currentTranslateX;
+    touchStartTranslateY = currentTranslateY;
+    isPinching = false;
+    isSwipingMedia = false;
+  }
+}, { passive: false });
+
+lightboxModal.addEventListener('touchmove', (e) => {
+  const currentItem = currentLightboxMedia[currentLightboxIndex];
+  const isVideo = currentItem && currentItem.type && currentItem.type.startsWith('video/');
+
+  if (!isVideo && e.touches.length === 2 && isPinching) {
+    e.preventDefault();
+    const currentDist = getDistance(e.touches[0], e.touches[1]);
+    if (initialPinchDistance > 0) {
+      let newScale = initialScale * (currentDist / initialPinchDistance);
+      if (newScale < 0.8) newScale = 0.8;
+      if (newScale > 4.5) newScale = 4.5;
+      currentScale = newScale;
+      applyTransform(false);
+    }
+  } else if (e.touches.length === 1 && !isPinching) {
+    const diffX = e.touches[0].clientX - touchStartX;
+    const diffY = e.touches[0].clientY - touchStartY;
+
+    if (!isVideo && currentScale > 1.05) {
+      e.preventDefault();
+      currentTranslateX = touchStartTranslateX + diffX;
+      currentTranslateY = touchStartTranslateY + diffY;
+      applyTransform(false);
+    } else {
+      if (Math.abs(diffX) > 20 && Math.abs(diffX) > Math.abs(diffY) * 1.3) {
+        isSwipingMedia = true;
+      }
+    }
+  }
+}, { passive: false });
+
+lightboxModal.addEventListener('touchend', (e) => {
+  if (isPinching) {
+    isPinching = false;
+    if (currentScale <= 1.05) {
+      resetTransform();
+      applyTransform(true);
+    } else if (currentScale > 4.0) {
+      currentScale = 4.0;
+      applyTransform(true);
+    } else {
+      const wrap = document.getElementById('lightbox-target-wrap');
+      const maxTransX = (wrap.clientWidth * (currentScale - 1)) / 1.8;
+      const maxTransY = (wrap.clientHeight * (currentScale - 1)) / 1.8;
+      currentTranslateX = Math.max(-maxTransX, Math.min(maxTransX, currentTranslateX));
+      currentTranslateY = Math.max(-maxTransY, Math.min(maxTransY, currentTranslateY));
+      applyTransform(true);
+    }
+  } else if (currentScale > 1.05) {
+    const wrap = document.getElementById('lightbox-target-wrap');
+    const maxTransX = (wrap.clientWidth * (currentScale - 1)) / 1.8;
+    const maxTransY = (wrap.clientHeight * (currentScale - 1)) / 1.8;
+    currentTranslateX = Math.max(-maxTransX, Math.min(maxTransX, currentTranslateX));
+    currentTranslateY = Math.max(-maxTransY, Math.min(maxTransY, currentTranslateY));
+    applyTransform(true);
+  } else if (isSwipingMedia && e.changedTouches.length === 1) {
+    const diffX = e.changedTouches[0].clientX - touchStartX;
+    const diffY = e.changedTouches[0].clientY - touchStartY;
+
+    if (Math.abs(diffX) >= 45 && Math.abs(diffX) > Math.abs(diffY)) {
+      if (diffX < 0) {
+        if (currentLightboxIndex < currentLightboxMedia.length - 1) {
+          currentLightboxIndex++;
+          renderLightboxItem();
+        } else {
+          showToast('마지막 미디어입니다.');
+        }
+      } else {
+        if (currentLightboxIndex > 0) {
+          currentLightboxIndex--;
+          renderLightboxItem();
+        } else {
+          showToast('첫 번째 미디어입니다.');
+        }
+      }
+    }
+    isSwipingMedia = false;
+  }
+}, { passive: true });
 
 document.addEventListener('DOMContentLoaded', async () => {
   renderCalendar();
@@ -1625,7 +1935,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderTimeline();
   });
 
-  // [기억할 날] 토글 이벤트 바인딩
   document.getElementById('btn-special-day').addEventListener('click', () => {
     const curDate = STATE.selectedDate;
     const idx = STATE.specialDates.indexOf(curDate);
@@ -1645,23 +1954,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderTimeline();
   });
 
-  // 캘린더 스와이프 제스처 바인딩 (월 이동 및 탭 간섭 완벽 격리)
   const calendarCard = document.getElementById('calendar-card');
-  let touchStartX = 0;
-  let touchStartY = 0;
+  let calTouchStartX = 0;
+  let calTouchStartY = 0;
 
   calendarCard.addEventListener('touchstart', (e) => {
     if (e.touches.length === 1) {
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
+      calTouchStartX = e.touches[0].clientX;
+      calTouchStartY = e.touches[0].clientY;
       isSwiping = false;
     }
   }, { passive: true });
 
   calendarCard.addEventListener('touchmove', (e) => {
     if (e.touches.length === 1) {
-      const diffX = e.touches[0].clientX - touchStartX;
-      const diffY = e.touches[0].clientY - touchStartY;
+      const diffX = e.touches[0].clientX - calTouchStartX;
+      const diffY = e.touches[0].clientY - calTouchStartY;
       if (Math.abs(diffX) > 25 && Math.abs(diffX) > Math.abs(diffY) * 1.4) {
         isSwiping = true;
       }
@@ -1670,8 +1978,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   calendarCard.addEventListener('touchend', (e) => {
     if (e.changedTouches.length === 1) {
-      const diffX = e.changedTouches[0].clientX - touchStartX;
-      const diffY = e.changedTouches[0].clientY - touchStartY;
+      const diffX = e.changedTouches[0].clientX - calTouchStartX;
+      const diffY = e.changedTouches[0].clientY - calTouchStartY;
 
       if (isSwiping && Math.abs(diffX) >= 45 && Math.abs(diffX) > Math.abs(diffY)) {
         if (diffX > 0) {
@@ -1736,10 +2044,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('btn-save-entry').addEventListener('click', handleSaveEntry);
 
-  document.getElementById('btn-close-lightbox').addEventListener('click', () => {
-    document.getElementById('lightbox-modal').classList.remove('active');
-    document.getElementById('lightbox-target-wrap').innerHTML = '';
-  });
+  document.getElementById('btn-close-lightbox').addEventListener('click', closeLightbox);
 
   const searchModal = document.getElementById('search-modal');
   const searchInput = document.getElementById('search-keyword-input');
